@@ -1,0 +1,272 @@
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 500px;
+  padding: 20px;
+  box-sizing: border-box; /* 确保padding不会增加容器宽度 */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin: 0;
+  flex: 1;
+}
+
+.config-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  margin: 0;
+}
+
+.config-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%; /* 确保表单组件占满容器宽度 */
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  box-sizing: border-box; /* 确保padding不会增加输入框宽度 */
+  margin: 0; /* 移除可能的默认外边距 */
+}
+
+button {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #3367d6;
+}
+
+.hidden {
+  display: none;
+}
+
+#optimized-answer { /* 可以移除这个旧的选择器，因为它不再使用 */
+  /* background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+  width: 100%; */
+}
+
+/* 新增样式 */
+.answer-section {
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.answer-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #555;
+  font-size: 16px;
+}
+
+.optimized-answer-box {
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  white-space: pre-wrap; /* 保留换行和空格 */
+  min-height: 50px; /* 给一个最小高度 */
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.copy-btn {
+  background-color: #6c757d; /* 灰色按钮 */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  display: inline-block; /* 改为行内块元素 */
+  margin: 0; /* 移除之前的 auto 外边距 */
+  margin-top: 5px; /* 添加一点上边距 */
+}
+
+.copy-btn:hover {
+  background-color: #5a6268;
+}
+
+.button-group {
+  text-align: center; /* 让按钮组居中 */
+  margin-top: 20px;
+}
+
+#continue-btn {
+   display: inline-block; /* 改为行内块 */
+   margin: 0; /* 移除 auto 外边距 */
+   /* 可以添加左右外边距与其他按钮分隔 */
+   /* margin: 0 10px; */
+}
+
+/* 新增：原始响应区域样式 */
+#raw-response-section {
+  margin-top: 20px; /* 与上方结果区域分隔开 */
+  margin-bottom: 20px;
+  border: 1px dashed #ff8c00; /* 使用虚线和橙色边框以示区别 */
+  padding: 15px;
+  border-radius: 4px;
+  background-color: #fff8e1; /* 淡黄色背景 */
+}
+
+#raw-response-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #e65100; /* 深橙色标题 */
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.raw-response-box {
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ffe0b2; /* 浅橙色边框 */
+  border-radius: 4px;
+  margin-bottom: 10px;
+  white-space: pre-wrap; /* 保留换行和空格 */
+  font-family: 'Courier New', Courier, monospace; /* 使用等宽字体 */
+  font-size: 12px; /* 稍小字体 */
+  line-height: 1.4;
+  max-height: 200px; /* 限制最大高度，超出则滚动 */
+  overflow-y: auto; /* 添加垂直滚动条 */
+  word-break: break-all; /* 强制长单词或字符串换行 */
+}
+
+.copy-btn {
+  background-color: #6c757d; /* 灰色按钮 */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  display: inline-block; /* 改为行内块元素 */
+  margin: 0; /* 移除之前的 auto 外边距 */
+  margin-top: 5px; /* 添加一点上边距 */
+}
+
+.copy-btn:hover {
+  background-color: #5a6268;
+}
+
+.button-group {
+  text-align: center; /* 让按钮组居中 */
+  margin-top: 20px;
+  /* 如果 button-group 现在为空或不再需要，可以考虑移除这个样式 */
+}
+
+/* 移除或注释掉旧的 #continue-btn 样式 */
+/* #continue-btn {
+   display: inline-block;
+   margin: 0;
+} */
+
+/* 新增：悬浮按钮 (FAB) 样式 */
+.fab {
+  position: fixed; /* 固定位置 */
+  bottom: 25px; /* 距离底部距离 */
+  right: 25px; /* 距离右侧距离 */
+  width: 60px; /* 按钮宽度 */
+  height: 60px; /* 按钮高度 */
+  background-color: #4285f4; /* 主题蓝色 */
+  color: white;
+  border: none;
+  border-radius: 50%; /* 圆形 */
+  padding: 0; /* 移除内边距，让文字居中 */
+  font-size: 12px; /* 调整字体大小以适应按钮 */
+  line-height: 1.2; /* 调整行高 */
+  text-align: center; /* 文字居中 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s ease-out; /* 添加过渡效果 */
+  z-index: 1000; /* 确保在顶层 */
+  display: flex; /* 使用 flexbox 垂直居中文本 */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+}
+
+.fab:hover {
+  background-color: #3367d6; /* 悬停时颜色变深 */
+  transform: scale(1.05); /* 轻微放大效果 */
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #4285f4;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#loading p {
+  text-align: center;
+  color: #666;
+}
+
+/* 这里移除了错误的 JSON 代码块 */
+
+.version {
+  font-size: 14px;
+  color: #666;
+  font-weight: normal;
+  margin-left: 5px;
+}

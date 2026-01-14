@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>客服回答助手</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>客服回答助手</h1>
+      <button id="configBtn" class="config-btn" title="配置设置">⚙️</button>
+    </div>
+    
+    <div id="input-form">
+      <div class="form-group">
+        <label for="question">用户问题:</label>
+        <textarea id="question" placeholder="请输入用户的问题..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="answer">我的回答:</label>
+        <textarea id="answer" placeholder="请输入您的回答..."></textarea>
+      </div>
+      
+      <button id="submit-btn">提交优化</button>
+    </div>
+    
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>正在优化您的回答...</p>
+    </div>
+    
+    <div id="result" class="hidden">
+      <h2>优化后的回答:</h2>
+
+      <div class="answer-section">
+        <h3>中文回答:</h3>
+        <div id="optimized-answer-zh" class="optimized-answer-box"></div>
+        <button id="copy-btn-zh" class="copy-btn">复制中文</button>
+      </div>
+
+      <div class="answer-section">
+        <h3>English Answer:</h3>
+        <div id="optimized-answer-en" class="optimized-answer-box"></div>
+        <button id="copy-btn-en" class="copy-btn">Copy English</button>
+      </div>
+
+      <!-- 新增：用于显示原始响应的区域 -->
+      <div id="raw-response-section" class="hidden">
+        <h3>原始模型响应 (调试用):</h3>
+        <div id="raw-response-content" class="raw-response-box"></div>
+      </div>
+      <!-- 结束新增区域 -->
+
+
+      <div class="button-group">
+        <!-- 新增：将继续输入按钮移到这里 -->
+        <button id="continue-btn" class="fab">继续<br>输入</button>
+        <!-- 结束新增 -->
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
