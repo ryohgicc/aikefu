@@ -61,6 +61,17 @@ textarea {
   margin: 0; /* 移除可能的默认外边距 */
 }
 
+/* 语言选择器样式 */
+select#language-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
 button {
   background-color: #4285f4;
   color: white;

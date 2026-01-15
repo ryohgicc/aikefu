@@ -78,11 +78,11 @@ document.addEventListener('DOMContentLoaded', function() {
         throw new Error(response.error);
       }
 
-      // 检查返回的数据结构
-      if (response.optimizedAnswer && response.optimizedAnswer.zh && response.optimizedAnswer.en) {
+      // 检查返回的数据结构（适配新的自动语言识别格式）
+      if (response.optimizedAnswer && response.optimizedAnswer.zh && response.optimizedAnswer.optimized_reply && response.optimizedAnswer.detected_language) {
         // 显示结果
         optimizedAnswerZhDiv.textContent = response.optimizedAnswer.zh;
-        optimizedAnswerEnDiv.textContent = response.optimizedAnswer.en;
+        optimizedAnswerEnDiv.textContent = response.optimizedAnswer.optimized_reply;
         loadingSection.classList.add('hidden');
         resultSection.classList.remove('hidden');
 
@@ -91,19 +91,17 @@ document.addEventListener('DOMContentLoaded', function() {
           question: question,
           answer: answer,
           optimizedAnswerZh: response.optimizedAnswer.zh, // 保存中文结果
-          optimizedAnswerEn: response.optimizedAnswer.en, // 保存英文结果
+          optimizedAnswerEn: response.optimizedAnswer.optimized_reply, // 保存检测语言的结果
+          detectedLanguage: response.optimizedAnswer.detected_language, // 保存检测到的语言
           state: 'result'
         });
       } else {
          // 如果返回的数据结构不符合预期，显示错误信息
-         optimizedAnswerZhDiv.textContent = '无法解析中文回答。';
-         optimizedAnswerEnDiv.textContent = 'Could not parse English answer.';
+         optimizedAnswerZhDiv.textContent = '无法解析优化回答。';
+         optimizedAnswerEnDiv.textContent = 'Could not parse optimized answer.';
          console.error('从 background.js 收到的响应格式不正确:', response);
          loadingSection.classList.add('hidden');
          resultSection.classList.remove('hidden');
-         // 也可以选择显示原始的 response.optimizedAnswer（如果它是字符串）
-         // optimizedAnswerZhDiv.textContent = response.optimizedAnswer || '未知错误';
-         // optimizedAnswerEnDiv.textContent = '';
       }
 
     } catch (error) {
@@ -217,11 +215,11 @@ document.addEventListener('DOMContentLoaded', function() {
            }
            inputForm.classList.add('hidden'); // 仍然显示结果区域（包含错误和原始响应）
            resultSection.classList.remove('hidden');
-        }
-         else {
+        } else {
+          // 默认状态：显示输入表单，隐藏结果和原始响应区域
           inputForm.classList.remove('hidden');
           resultSection.classList.add('hidden');
-          rawResponseSection.classList.add('hidden'); // 确保隐藏
+          rawResponseSection.classList.add('hidden');
         }
       }
     });
