@@ -30,14 +30,31 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       .then(result => {
         try {
           const parsedResult = JSON.parse(result);
-          if (parsedResult && typeof parsedResult === 'object' && parsedResult.zh && parsedResult.en) {
-            sendResponse({ optimizedAnswer: parsedResult }); // 成功解析
+          console.log('解析API响应成功:', parsedResult);
+          
+          // 检查新的JSON结构（适配自动语言识别格式）
+          if (parsedResult && typeof parsedResult === 'object' && 
+              parsedResult.zh && parsedResult.optimized_reply && parsedResult.detected_language) {
+            sendResponse({ 
+              optimizedAnswer: parsedResult,
+              rawApiResponse: result // 发送原始API响应便于调试
+            }); // 成功解析
           } else {
             // JSON 结构不符合预期
-            console.error('API返回的JSON格式不正确:', result);
+            console.error('API返回的JSON格式不正确:', {
+              result: result,
+              parsedResult: parsedResult,
+              missingFields: {
+                hasZh: !!parsedResult.zh,
+                hasOptimizedReply: !!parsedResult.optimized_reply,
+                hasDetectedLanguage: !!parsedResult.detected_language
+              }
+            });
             sendResponse({
               error: 'Invalid JSON Structure',
-              rawResponse: result // 发送原始响应
+              details: '响应缺少必要字段，需要: zh, optimized_reply, detected_language',
+              rawResponse: result, // 发送原始响应
+              rawApiResponse: result // 发送原始API响应便于调试
             });
           }
         } catch (e) {
@@ -45,6 +62,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           console.error('解析API响应时出错:', e, '原始响应:', result);
           sendResponse({
             error: 'JSON Parse Error',
+            details: e.message,
             rawResponse: result // 发送原始响应
           });
         }
@@ -172,6 +190,15 @@ async function optimizeAnswer(question, answer) {
     
     const content = data.choices[0].message.content;
     console.log('提取到的回复内容:', content);
+    
+    // 尝试解析返回的内容确保它是有效的JSON
+    try {
+      const parsedContent = JSON.parse(content);
+      console.log('内容解析成功:', parsedContent);
+    } catch (e) {
+      console.error('返回的内容不是有效的JSON:', content);
+      throw new Error(`API返回的内容不是有效的JSON格式: ${content}`);
+    }
     
     // 直接返回API响应中的content，它应该是我们要求的JSON字符串
     return content || '{"zh": "无法获取优化后的回答", "en": "Unable to get optimized answer"}';

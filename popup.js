@@ -98,13 +98,37 @@ document.addEventListener('DOMContentLoaded', function() {
           detectedLanguage: response.optimizedAnswer.detected_language, // 保存检测到的语言
           state: 'result',
           error: null,
-          errorDetails: null
+          errorDetails: null,
+          rawApiResponse: response.rawApiResponse || null // 保存原始API响应便于调试
         });
+        
+        // 显示原始API响应（调试用）
+        if (response.rawApiResponse) {
+          rawResponseContentDiv.textContent = response.rawApiResponse;
+          rawResponseSection.classList.remove('hidden');
+        }
       } else {
-         // 如果返回的数据结构不符合预期，显示错误信息
-         optimizedAnswerZhDiv.textContent = '无法解析优化回答。';
-         optimizedAnswerEnDiv.textContent = 'Could not parse optimized answer.';
-         console.error('从 background.js 收到的响应格式不正确:', response);
+         // 如果返回的数据结构不符合预期，显示详细错误信息
+         const errorTitle = '响应格式错误';
+         const errorDesc = response.details || 'API返回的数据格式不符合预期';
+         const errorDetails = response.rawResponse || JSON.stringify(response);
+         
+         optimizedAnswerZhDiv.textContent = `${errorTitle}: ${errorDesc}`;
+         optimizedAnswerEnDiv.textContent = `${errorTitle}: ${errorDesc}`;
+         
+         console.error('从 background.js 收到的响应格式不正确:', {
+           error: response.error,
+           details: response.details,
+           rawResponse: response.rawResponse,
+           fullResponse: response
+         });
+         
+         // 显示原始响应内容便于调试
+         if (response.rawResponse) {
+           rawResponseContentDiv.textContent = response.rawResponse;
+           rawResponseSection.classList.remove('hidden');
+         }
+         
          loadingSection.classList.add('hidden');
          resultSection.classList.remove('hidden');
       }
@@ -236,7 +260,14 @@ document.addEventListener('DOMContentLoaded', function() {
           optimizedAnswerEnDiv.textContent = cachedData.optimizedAnswerEn;
           inputForm.classList.add('hidden');
           resultSection.classList.remove('hidden');
-          rawResponseSection.classList.add('hidden'); // 确保隐藏
+          
+          // 显示原始API响应（如果有）
+          if (cachedData.rawApiResponse) {
+            rawResponseContentDiv.textContent = cachedData.rawApiResponse;
+            rawResponseSection.classList.remove('hidden');
+          } else {
+            rawResponseSection.classList.add('hidden');
+          }
         } else if (cachedData.state === 'error') {
            // 如果缓存的是错误状态
            optimizedAnswerZhDiv.textContent = `处理出错: ${cachedData.error || '未知错误'}`;
