@@ -5,56 +5,106 @@
   <title>配置设置 - 客服回答助手</title>
   <link rel="stylesheet" href="popup.css">
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
     .config-container {
-      padding: 20px;
-      max-width: 400px;
+      padding: 40px;
+      max-width: 600px;
+      min-width: 500px;
+      margin: 20px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
     .config-group {
-      margin-bottom: 15px;
+      margin-bottom: 25px;
     }
     .config-group label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
       font-weight: bold;
+      font-size: 16px;
+      color: #333;
     }
     .config-group input {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
       box-sizing: border-box;
+      font-size: 16px;
+      line-height: 1.5;
+      transition: all 0.3s ease;
+    }
+    .config-group input:focus {
+      outline: none;
+      border-color: #4285f4;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+    }
+    .config-group input::placeholder {
+      color: #999;
+      font-size: 14px;
     }
     .config-buttons {
       display: flex;
-      gap: 10px;
-      margin-top: 20px;
+      gap: 15px;
+      margin-top: 30px;
     }
     .config-buttons button {
       flex: 1;
-      padding: 10px;
+      padding: 15px 20px;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
     .save-btn {
       background-color: #4CAF50;
       color: white;
     }
+    .save-btn:hover {
+      background-color: #45a049;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
     .reset-btn {
       background-color: #f44336;
       color: white;
+    }
+    .reset-btn:hover {
+      background-color: #da190b;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .back-btn {
       background-color: #2196F3;
       color: white;
     }
+    .back-btn:hover {
+      background-color: #0b7dda;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
     .status-message {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 4px;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
       text-align: center;
       display: none;
+      font-size: 16px;
+      font-weight: 500;
     }
     .status-success {
       background-color: #d4edda;
