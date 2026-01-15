@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // 新增：获取原始响应区域元素
   const rawResponseSection = document.getElementById('raw-response-section');
   const rawResponseContentDiv = document.getElementById('raw-response-content');
+  // 新增：错误详情区域元素
+  const errorDetailsSection = document.getElementById('error-details-section');
+  const errorDetailsContentDiv = document.getElementById('error-details-content');
 
   // 配置按钮点击事件
   configBtn.addEventListener('click', function() {
@@ -93,7 +96,9 @@ document.addEventListener('DOMContentLoaded', function() {
           optimizedAnswerZh: response.optimizedAnswer.zh, // 保存中文结果
           optimizedAnswerEn: response.optimizedAnswer.optimized_reply, // 保存检测语言的结果
           detectedLanguage: response.optimizedAnswer.detected_language, // 保存检测到的语言
-          state: 'result'
+          state: 'result',
+          error: null,
+          errorDetails: null
         });
       } else {
          // 如果返回的数据结构不符合预期，显示错误信息
@@ -105,10 +110,35 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
     } catch (error) {
-      alert('发生错误: ' + error.message);
-      loadingSection.classList.add('hidden');
-      inputForm.classList.remove('hidden'); // 出错时返回输入界面
-      resultSection.classList.add('hidden'); // 隐藏结果区域
+      console.error('前端处理错误:', error);
+      
+      // 显示详细的错误信息给用户
+       const errorMessage = error.message || '未知错误';
+       optimizedAnswerZhDiv.textContent = `处理出错: ${errorMessage}`;
+       optimizedAnswerEnDiv.textContent = `Error: ${errorMessage}`;
+       
+       // 显示错误详情（包括堆栈信息）
+       const errorDetails = {
+         message: errorMessage,
+         stack: error.stack || '无堆栈信息',
+         timestamp: new Date().toLocaleString()
+       };
+       
+       const errorDetailsStr = JSON.stringify(errorDetails, null, 2);
+       errorDetailsContentDiv.textContent = errorDetailsStr;
+       errorDetailsSection.classList.remove('hidden');
+       
+       // 保存错误状态到缓存
+       saveToCache({
+         question: question,
+         answer: answer,
+         state: 'error',
+         error: errorMessage,
+         errorDetails: errorDetailsStr
+       });
+       
+       loadingSection.classList.add('hidden');
+       resultSection.classList.remove('hidden'); // 显示错误信息在结果区域
     }
   });
 
@@ -119,6 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
     answerInput.value = '';
     optimizedAnswerZhDiv.textContent = ''; // 清空结果区域
     optimizedAnswerEnDiv.textContent = ''; // 清空结果区域
+    rawResponseSection.classList.add('hidden'); // 隐藏原始响应区域
+    errorDetailsSection.classList.add('hidden'); // 隐藏错误详情区域
     resultSection.classList.add('hidden');
     inputForm.classList.remove('hidden');
 
@@ -209,10 +241,17 @@ document.addEventListener('DOMContentLoaded', function() {
            // 如果缓存的是错误状态
            optimizedAnswerZhDiv.textContent = `处理出错: ${cachedData.error || '未知错误'}`;
            optimizedAnswerEnDiv.textContent = `Error: ${cachedData.error || 'Unknown error'}`;
+           
            if (cachedData.rawResponse) {
              rawResponseContentDiv.textContent = cachedData.rawResponse;
              rawResponseSection.classList.remove('hidden'); // 显示原始响应
            }
+           
+           if (cachedData.errorDetails) {
+             errorDetailsContentDiv.textContent = cachedData.errorDetails;
+             errorDetailsSection.classList.remove('hidden'); // 显示错误详情
+           }
+           
            inputForm.classList.add('hidden'); // 仍然显示结果区域（包含错误和原始响应）
            resultSection.classList.remove('hidden');
         } else {

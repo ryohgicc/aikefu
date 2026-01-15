@@ -194,6 +194,40 @@ button:hover {
   word-break: break-all; /* 强制长单词或字符串换行 */
 }
 
+/* 新增：错误详情区域样式 */
+#error-details-section {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px dashed #f44336; /* 红色虚线边框 */
+  padding: 15px;
+  border-radius: 4px;
+  background-color: #ffebee; /* 淡红色背景 */
+}
+
+#error-details-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #c62828; /* 深红色标题 */
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.error-details-box {
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ffcdd2; /* 浅红色边框 */
+  border-radius: 4px;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 150px;
+  overflow-y: auto;
+  word-break: break-all;
+  color: #d32f2f; /* 红色文字 */
+}
+
 .copy-btn {
   background-color: #6c757d; /* 灰色按钮 */
   color: white;

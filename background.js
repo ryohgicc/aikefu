@@ -93,8 +93,20 @@ async function optimizeAnswer(question, answer) {
     // 直接返回API响应中的content，它应该是我们要求的JSON字符串
     return data.choices[0]?.message?.content || '{"zh": "无法获取优化后的回答", "en": "Unable to get optimized answer"}';
   } catch (error) {
-    console.error('API调用错误:', error);
-    // 返回一个表示错误的JSON字符串，以便前端可以处理
-    return `{"zh": "API调用错误: ${error.message}", "en": "API call error: ${error.message}"}`;
+    console.error('API调用错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      timestamp: new Date().toISOString()
+    });
+    
+    // 返回更详细的错误信息给前端
+    const errorResponse = {
+      zh: `API调用错误: ${error.message}`,
+      en: `API call error: ${error.message}`,
+      detected_language: 'en',
+      optimized_reply: `Error: ${error.message}`
+    };
+    return JSON.stringify(errorResponse);
   }
 }
