@@ -36,8 +36,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           if (parsedResult && typeof parsedResult === 'object' && 
               parsedResult.zh && parsedResult.optimized_reply && parsedResult.detected_language) {
             sendResponse({ 
-              optimizedAnswer: parsedResult,
-              rawApiResponse: result // 发送原始API响应便于调试
+              optimizedAnswer: parsedResult
+              // rawApiResponse: result // 发送原始API响应便于调试（已注释）
             }); // 成功解析
           } else {
             // JSON 结构不符合预期
@@ -53,8 +53,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             sendResponse({
               error: 'Invalid JSON Structure',
               details: '响应缺少必要字段，需要: zh, optimized_reply, detected_language',
-              rawResponse: result, // 发送原始响应
-              rawApiResponse: result // 发送原始API响应便于调试
+              rawResponse: result // 发送原始响应
+              // rawApiResponse: result // 发送原始API响应便于调试（已注释）
             });
           }
         } catch (e) {
@@ -191,12 +191,12 @@ async function optimizeAnswer(question, answer) {
     const content = data.choices[0].message.content;
     console.log('提取到的回复内容:', content);
     
-    // 尝试解析返回的内容确保它是有效的JSON
+    // 尝试解析返回的内容确保它是有效的JSON（调试用，日志已简化）
     try {
       const parsedContent = JSON.parse(content);
-      console.log('内容解析成功:', parsedContent);
+      // console.log('内容解析成功:', parsedContent); // 调试用，已注释
     } catch (e) {
-      console.error('返回的内容不是有效的JSON:', content);
+      // console.error('返回的内容不是有效的JSON:', content); // 调试用，已注释
       throw new Error(`API返回的内容不是有效的JSON格式: ${content}`);
     }
     

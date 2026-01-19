@@ -12,9 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const continueBtn = document.getElementById('continue-btn');
   const copyBtnZh = document.getElementById('copy-btn-zh');
   const copyBtnEn = document.getElementById('copy-btn-en');
-  // 新增：获取原始响应区域元素
-  const rawResponseSection = document.getElementById('raw-response-section');
-  const rawResponseContentDiv = document.getElementById('raw-response-content');
+  // 新增：获取原始响应区域元素（调试用，已注释）
+  // const rawResponseSection = document.getElementById('raw-response-section');
+  // const rawResponseContentDiv = document.getElementById('raw-response-content');
   // 新增：错误详情区域元素
   const errorDetailsSection = document.getElementById('error-details-section');
   const errorDetailsContentDiv = document.getElementById('error-details-content');
@@ -102,11 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
           rawApiResponse: response.rawApiResponse || null // 保存原始API响应便于调试
         });
         
-        // 显示原始API响应（调试用）
-        if (response.rawApiResponse) {
-          rawResponseContentDiv.textContent = response.rawApiResponse;
-          rawResponseSection.classList.remove('hidden');
-        }
+        // 显示原始API响应（调试用，已注释）
+        // if (response.rawApiResponse) {
+        //   rawResponseContentDiv.textContent = response.rawApiResponse;
+        //   rawResponseSection.classList.remove('hidden');
+        // }
       } else {
          // 如果返回的数据结构不符合预期，显示详细错误信息
          const errorTitle = '响应格式错误';
@@ -123,11 +123,11 @@ document.addEventListener('DOMContentLoaded', function() {
            fullResponse: response
          });
          
-         // 显示原始响应内容便于调试
-         if (response.rawResponse) {
-           rawResponseContentDiv.textContent = response.rawResponse;
-           rawResponseSection.classList.remove('hidden');
-         }
+         // 显示原始响应内容便于调试（已注释）
+         // if (response.rawResponse) {
+         //   rawResponseContentDiv.textContent = response.rawResponse;
+         //   rawResponseSection.classList.remove('hidden');
+         // }
          
          loadingSection.classList.add('hidden');
          resultSection.classList.remove('hidden');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     answerInput.value = '';
     optimizedAnswerZhDiv.textContent = ''; // 清空结果区域
     optimizedAnswerEnDiv.textContent = ''; // 清空结果区域
-    rawResponseSection.classList.add('hidden'); // 隐藏原始响应区域
+    // rawResponseSection.classList.add('hidden'); // 隐藏原始响应区域（已注释）
     errorDetailsSection.classList.add('hidden'); // 隐藏错误详情区域
     resultSection.classList.add('hidden');
     inputForm.classList.remove('hidden');
@@ -261,22 +261,23 @@ document.addEventListener('DOMContentLoaded', function() {
           inputForm.classList.add('hidden');
           resultSection.classList.remove('hidden');
           
-          // 显示原始API响应（如果有）
-          if (cachedData.rawApiResponse) {
-            rawResponseContentDiv.textContent = cachedData.rawApiResponse;
-            rawResponseSection.classList.remove('hidden');
-          } else {
-            rawResponseSection.classList.add('hidden');
-          }
+          // 显示原始API响应（调试用，已注释）
+          // if (cachedData.rawApiResponse) {
+          //   rawResponseContentDiv.textContent = cachedData.rawApiResponse;
+          //   rawResponseSection.classList.remove('hidden');
+          // } else {
+          //   rawResponseSection.classList.add('hidden');
+          // }
         } else if (cachedData.state === 'error') {
            // 如果缓存的是错误状态
            optimizedAnswerZhDiv.textContent = `处理出错: ${cachedData.error || '未知错误'}`;
            optimizedAnswerEnDiv.textContent = `Error: ${cachedData.error || 'Unknown error'}`;
            
-           if (cachedData.rawResponse) {
-             rawResponseContentDiv.textContent = cachedData.rawResponse;
-             rawResponseSection.classList.remove('hidden'); // 显示原始响应
-           }
+           // 原始响应显示已注释（调试用）
+           // if (cachedData.rawResponse) {
+           //   rawResponseContentDiv.textContent = cachedData.rawResponse;
+           //   rawResponseSection.classList.remove('hidden'); // 显示原始响应
+           // }
            
            if (cachedData.errorDetails) {
              errorDetailsContentDiv.textContent = cachedData.errorDetails;
