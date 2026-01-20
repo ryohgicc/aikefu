@@ -593,14 +593,14 @@
         // 快速操作按钮
         document.querySelectorAll('.aikifu-quick-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                insertTemplate(this.dataset.template);
+                insertTemplate(this.dataset.template, this);
             });
         });
         
         // 复制按钮
         document.querySelectorAll('.aikifu-copy-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                copyToClipboard(this.dataset.target);
+                copyToClipboard(this.dataset.target, this);
             });
         });
         
@@ -614,23 +614,25 @@
     }
     
     // 插入模板
-    function insertTemplate(templateType) {
+    function insertTemplate(templateType, btn) {
         const template = quickTemplates[templateType];
         if (template) {
             const answerInput = document.getElementById('aikifu-answer');
             if (answerInput) {
                 answerInput.value = template.zh; // 默认使用中文模板
                 // 添加视觉反馈
-                const btn = event.target;
-                btn.style.background = '#10b981';
-                btn.style.color = 'white';
-                btn.style.borderColor = '#10b981';
-                
-                setTimeout(() => {
-                    btn.style.background = '';
-                    btn.style.color = '';
-                    btn.style.borderColor = '';
-                }, 1000);
+                const targetBtn = btn || event.target;
+                if (targetBtn) {
+                    targetBtn.style.background = '#10b981';
+                    targetBtn.style.color = 'white';
+                    targetBtn.style.borderColor = '#10b981';
+                    
+                    setTimeout(() => {
+                        targetBtn.style.background = '';
+                        targetBtn.style.color = '';
+                        targetBtn.style.borderColor = '';
+                    }, 1000);
+                }
             }
         }
     }
@@ -827,22 +829,26 @@
     }
     
     // 复制到剪贴板
-    async function copyToClipboard(elementId) {
+    async function copyToClipboard(elementId, btn) {
         const content = document.getElementById(elementId).textContent;
         
         try {
             await navigator.clipboard.writeText(content);
             
             // 显示成功反馈
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✅ 已复制';
-            btn.classList.add('copied');
+            // 如果没有传入 btn (兼容旧调用)，尝试使用 event.target，但在 async 中可能不可靠
+            const targetBtn = btn || event.target;
             
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.classList.remove('copied');
-            }, 2000);
+            if (targetBtn) {
+                const originalText = targetBtn.textContent;
+                targetBtn.textContent = '✅ 已复制';
+                targetBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    targetBtn.textContent = originalText;
+                    targetBtn.classList.remove('copied');
+                }, 2000);
+            }
             
         } catch (err) {
             console.error('复制失败:', err);
