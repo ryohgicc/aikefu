@@ -191,17 +191,32 @@ async function optimizeAnswer(question, answer) {
     const content = data.choices[0].message.content;
     console.log('提取到的回复内容:', content);
     
+    // 清洗内容：去除可能的 Markdown 代码块标记
+    let cleanContent = content.trim();
+    // 移除开头的 ```json 或 ```
+    if (cleanContent.startsWith('```')) {
+        const firstNewline = cleanContent.indexOf('\n');
+        if (firstNewline !== -1) {
+            cleanContent = cleanContent.substring(firstNewline + 1);
+        }
+    }
+    // 移除结尾的 ```
+    if (cleanContent.endsWith('```')) {
+        cleanContent = cleanContent.substring(0, cleanContent.length - 3);
+    }
+    cleanContent = cleanContent.trim();
+    
     // 尝试解析返回的内容确保它是有效的JSON（调试用，日志已简化）
     try {
-      const parsedContent = JSON.parse(content);
-      // console.log('内容解析成功:', parsedContent); // 调试用，已注释
+        const parsedContent = JSON.parse(cleanContent);
+        // console.log('内容解析成功:', parsedContent); // 调试用，已注释
+        // 重新序列化以确保返回标准 JSON 字符串
+        return JSON.stringify(parsedContent);
     } catch (e) {
-      // console.error('返回的内容不是有效的JSON:', content); // 调试用，已注释
-      throw new Error(`API返回的内容不是有效的JSON格式: ${content}`);
+        console.error('返回的内容不是有效的JSON:', content);
+        // 尝试修复常见的 JSON 错误（如未转义的引号），或者直接抛出
+        throw new Error(`API返回的内容不是有效的JSON格式: ${content}`);
     }
-    
-    // 直接返回API响应中的content，它应该是我们要求的JSON字符串
-    return content || '{"zh": "无法获取优化后的回答", "en": "Unable to get optimized answer"}';
   } catch (error) {
     console.error('API调用错误详情:', {
       message: error.message,
