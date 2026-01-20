@@ -648,7 +648,10 @@
         const question = document.getElementById('aikifu-question').value.trim();
         const answer = document.getElementById('aikifu-answer').value.trim();
         
+        console.log('AIkeFu: 准备优化回答', { question: question.substring(0, 50), answer: answer.substring(0, 50) });
+
         if (!question || !answer) {
+            console.log('AIkeFu: 输入为空');
             showError('请输入用户问题和您的回答');
             return;
         }
@@ -657,35 +660,55 @@
         hideError();
         
         try {
+            console.log('AIkeFu: 发送消息给后台...');
             const response = await chrome.runtime.sendMessage({
                 action: 'optimizeAnswer',
                 question: question,
                 answer: answer
             });
+            console.log('AIkeFu: 收到后台响应', response);
             
             if (response.error) {
+                console.error('AIkeFu: 后台返回错误', response.error);
                 throw new Error(response.error);
             }
             
+            if (!response.optimizedAnswer) {
+                console.error('AIkeFu: 响应缺少 optimizedAnswer', response);
+                throw new Error('未收到有效回复');
+            }
+
+            console.log('AIkeFu: 优化成功，显示结果', response.optimizedAnswer);
             showResults(response.optimizedAnswer);
             
         } catch (error) {
-            console.error('AI优化失败:', error);
+            console.error('AIkeFu: 优化流程异常', error);
             showError(`优化失败: ${error.message}`);
         } finally {
+            console.log('AIkeFu: 流程结束，隐藏Loading');
             showLoading(false);
         }
     }
     
     // 显示结果
     function showResults(optimizedAnswer) {
-        document.getElementById('aikifu-result-zh').textContent = optimizedAnswer.zh;
-        document.getElementById('aikifu-result-en').textContent = optimizedAnswer.optimized_reply;
+        console.log('AIkeFu: showResults 被调用', optimizedAnswer);
+        const zhElem = document.getElementById('aikifu-result-zh');
+        const enElem = document.getElementById('aikifu-result-en');
+        
+        if (zhElem) zhElem.textContent = optimizedAnswer.zh;
+        if (enElem) enElem.textContent = optimizedAnswer.optimized_reply;
         
         const emptyState = document.getElementById('aikifu-empty-state');
         if (emptyState) emptyState.style.display = 'none';
         
-        document.getElementById('aikifu-results').style.display = 'flex';
+        const resultsContainer = document.getElementById('aikifu-results');
+        if (resultsContainer) {
+             resultsContainer.style.display = 'flex';
+             console.log('AIkeFu: 结果区域已设置为 visible');
+        } else {
+             console.error('AIkeFu: 找不到结果区域元素 #aikifu-results');
+        }
     }
     
     // 清空表单

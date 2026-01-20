@@ -25,29 +25,33 @@ const configManager = new ConfigManager();
 
 // 监听来自popup.js的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  console.log('AIkeFu-BG: 收到消息', request.action);
+
   if (request.action === 'optimizeAnswer') {
     optimizeAnswer(request.question, request.answer)
       .then(result => {
+        console.log('AIkeFu-BG: optimizeAnswer 完成，原始结果长度:', result?.length);
         try {
           const parsedResult = JSON.parse(result);
-          console.log('解析API响应成功:', parsedResult);
+          console.log('AIkeFu-BG: 解析JSON成功', parsedResult);
           
           // 检查新的JSON结构（适配自动语言识别格式）
           if (parsedResult && typeof parsedResult === 'object' && 
               parsedResult.zh && parsedResult.optimized_reply && parsedResult.detected_language) {
+            console.log('AIkeFu-BG: 格式验证通过，发送响应');
             sendResponse({ 
               optimizedAnswer: parsedResult
               // rawApiResponse: result // 发送原始API响应便于调试（已注释）
             }); // 成功解析
           } else {
             // JSON 结构不符合预期
-            console.error('API返回的JSON格式不正确:', {
+            console.error('AIkeFu-BG: API返回的JSON格式不正确:', {
               result: result,
               parsedResult: parsedResult,
               missingFields: {
-                hasZh: !!parsedResult.zh,
-                hasOptimizedReply: !!parsedResult.optimized_reply,
-                hasDetectedLanguage: !!parsedResult.detected_language
+                hasZh: !!parsedResult?.zh,
+                hasOptimizedReply: !!parsedResult?.optimized_reply,
+                hasDetectedLanguage: !!parsedResult?.detected_language
               }
             });
             sendResponse({
@@ -59,7 +63,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           }
         } catch (e) {
           // JSON 解析失败
-          console.error('解析API响应时出错:', e, '原始响应:', result);
+          console.error('AIkeFu-BG: 解析API响应时出错:', e, '原始响应:', result);
           sendResponse({
             error: 'JSON Parse Error',
             details: e.message,
@@ -69,7 +73,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       })
       .catch(error => {
           // API 调用或其他错误
-          console.error('optimizeAnswer 内部错误:', error);
+          console.error('AIkeFu-BG: optimizeAnswer 内部错误:', error);
           sendResponse({ error: error.message, rawResponse: `API 调用失败: ${error.message}` });
        });
 
