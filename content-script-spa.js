@@ -835,13 +835,49 @@
         try {
             await navigator.clipboard.writeText(content);
             
+            // 尝试自动填充到页面输入框
+            let filled = false;
+            // 优先使用 data-testid 查找，这是最准确的
+            let targetInput = document.querySelector('textarea[data-testid="text-area"]');
+            
+            // 如果没找到，尝试使用 class
+            if (!targetInput) {
+                targetInput = document.querySelector('textarea.mde-text');
+            }
+            
+            if (targetInput) {
+                console.log('AIkeFu Assistant: 找到目标输入框', targetInput);
+                
+                // 1. 设置值
+                // 对于 React，需要获取原生 setter 以触发状态更新
+                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+                if (nativeInputValueSetter) {
+                    nativeInputValueSetter.call(targetInput, content);
+                } else {
+                    targetInput.value = content;
+                }
+                
+                // 2. 触发事件
+                targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                // 聚焦输入框
+                targetInput.focus();
+                
+                console.log('AIkeFu Assistant: 已自动填充到页面输入框');
+                filled = true;
+            } else {
+                console.log('AIkeFu Assistant: 未找到目标输入框 (textarea[data-testid="text-area"] 或 textarea.mde-text)');
+            }
+            
             // 显示成功反馈
             // 如果没有传入 btn (兼容旧调用)，尝试使用 event.target，但在 async 中可能不可靠
             const targetBtn = btn || event.target;
             
             if (targetBtn) {
                 const originalText = targetBtn.textContent;
-                targetBtn.textContent = '✅ 已复制';
+                // 根据是否填充成功显示不同的提示
+                targetBtn.textContent = filled ? '✅ 已复制并填充' : '✅ 已复制';
                 targetBtn.classList.add('copied');
                 
                 setTimeout(() => {
