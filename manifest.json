@@ -16,8 +16,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://feedback.midway.run/*/*/feedback/reply/*"],
-      "js": ["content-script-optimized.js"],
+      "matches": ["https://feedback.midway.run/*"],
+      "js": ["content-script-spa.js"],
       "css": ["content-style.css"],
       "run_at": "document_end"
     }
@@ -28,7 +28,7 @@
       "matches": ["<all_urls>"]
     },
     {
-      "resources": ["content-script-optimized.js", "content-style.css"],
+      "resources": ["content-script-spa.js", "content-style.css"],
       "matches": ["https://feedback.midway.run/*"]
     }
   ],

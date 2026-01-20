@@ -1,21 +1,32 @@
-// AIkeFu Assistant - 轻量级内容脚本
-// 专为feedback.midway.run页面优化
+// AIkeFu Assistant - SPA支持内容脚本
+// 支持单页应用导航变化检测
 
 (function() {
     'use strict';
     
-    // 防止重复注入
-    if (window.aikifuInjected) {
-        console.log('AIkeFu Assistant: 已注入，跳过');
-        return;
-    }
-    window.aikifuInjected = true;
+    console.log('AIkeFu Assistant: SPA内容脚本启动');
     
-    console.log('AIkeFu Assistant: 内容脚本启动');
+    let sidebarElement = null;
+    let currentUrl = window.location.href;
+    let isInjected = false;
+    
+    // 检测是否应该显示侧边栏
+    function shouldShowSidebar() {
+        const url = window.location.href;
+        // 匹配 /任意内容/feedback/reply/任意内容 的URL模式
+        const pattern = /\/feedback\/reply\/[^\/]+$/;
+        return pattern.test(url);
+    }
     
     // 创建侧边栏
     function createSidebar() {
-        // 创建容器
+        if (sidebarElement) {
+            console.log('侧边栏已存在');
+            return;
+        }
+        
+        console.log('AIkeFu Assistant: 创建侧边栏');
+        
         const container = document.createElement('div');
         container.id = 'aikifu-assistant';
         container.innerHTML = `
@@ -57,7 +68,34 @@
         `;
         
         // 注入样式
+        injectStyles();
+        
+        document.body.appendChild(container);
+        sidebarElement = container;
+        
+        setupEventListeners();
+        
+        // 尝试提取页面内容
+        setTimeout(extractPageContent, 1000);
+    }
+    
+    // 移除侧边栏
+    function removeSidebar() {
+        if (sidebarElement) {
+            console.log('AIkeFu Assistant: 移除侧边栏');
+            sidebarElement.remove();
+            sidebarElement = null;
+        }
+    }
+    
+    // 注入样式
+    function injectStyles() {
+        if (document.getElementById('aikifu-styles')) {
+            return; // 样式已存在
+        }
+        
         const style = document.createElement('style');
+        style.id = 'aikifu-styles';
         style.textContent = `
             #aikifu-assistant {
                 position: fixed !important;
@@ -291,13 +329,9 @@
         `;
         
         document.head.appendChild(style);
-        document.body.appendChild(container);
-        
-        // 设置事件监听
-        setupEventListeners();
     }
     
-    // 设置事件监听
+    // 设置事件监听器
     function setupEventListeners() {
         // 优化按钮
         document.getElementById('aikifu-optimize').addEventListener('click', optimizeAnswer);
@@ -460,28 +494,69 @@
         }
     }
     
-    // 初始化
-    function init() {
-        console.log('AIkeFu Assistant: 初始化内容脚本');
+    // 处理URL变化
+    function handleUrlChange() {
+        const newUrl = window.location.href;
         
-        // 等待页面加载
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', completeInit);
-        } else {
-            completeInit();
+        if (newUrl !== currentUrl) {
+            console.log('AIkeFu Assistant: URL变化检测', {
+                oldUrl: currentUrl,
+                newUrl: newUrl
+            });
+            
+            currentUrl = newUrl;
+            
+            // 检查是否应该显示侧边栏
+            if (shouldShowSidebar()) {
+                console.log('AIkeFu Assistant: 显示侧边栏');
+                createSidebar();
+            } else {
+                console.log('AIkeFu Assistant: 隐藏侧边栏');
+                removeSidebar();
+            }
         }
     }
     
-    function completeInit() {
-        // 延迟执行，确保页面完全加载
+    // 初始化
+    function init() {
+        console.log('AIkeFu Assistant: 初始化SPA支持');
+        
+        // 监听URL变化（适用于SPA应用）
+        // 方法1: 监听popstate事件
+        window.addEventListener('popstate', handleUrlChange);
+        
+        // 方法2: 监听hashchange事件（适用于hash路由）
+        window.addEventListener('hashchange', handleUrlChange);
+        
+        // 方法3: 监听pushState和replaceState（适用于history API）
+        const originalPushState = history.pushState;
+        const originalReplaceState = history.replaceState;
+        
+        history.pushState = function(...args) {
+            originalPushState.apply(this, args);
+            setTimeout(handleUrlChange, 100); // 延迟执行，确保路由完成
+        };
+        
+        history.replaceState = function(...args) {
+            originalReplaceState.apply(this, args);
+            setTimeout(handleUrlChange, 100);
+        };
+        
+        // 方法4: 监听URL变化的轮询（备用方案）
+        setInterval(() => {
+            if (window.location.href !== currentUrl) {
+                handleUrlChange();
+            }
+        }, 1000);
+        
+        // 初始检查
         setTimeout(() => {
-            createSidebar();
-            
-            // 尝试自动提取页面内容
-            setTimeout(extractPageContent, 1000);
-            
-            console.log('AIkeFu Assistant: 内容脚本初始化完成');
-        }, 500);
+            if (shouldShowSidebar()) {
+                createSidebar();
+            }
+        }, 1000);
+        
+        console.log('AIkeFu Assistant: SPA支持初始化完成');
     }
     
     // 启动
