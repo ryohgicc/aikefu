@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AIkeFu Assistant",
-  "version": "2.1",
+  "version": "2.1.1",
   "description": "An AI assistant for customer service.",
   "permissions": [
     "storage",

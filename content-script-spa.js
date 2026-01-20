@@ -198,14 +198,25 @@
 
     // 显示设置弹窗
     async function showSettings() {
+        console.log('AIkeFu: showSettings called');
         const modal = document.getElementById('aikifu-settings-modal');
         if (modal) {
-            const config = await loadConfig();
-            document.getElementById('aikifu-config-apikey').value = config.apiKey || '';
-            document.getElementById('aikifu-config-baseurl').value = config.baseUrl || 'https://ark.cn-beijing.volces.com/api/v3';
-            document.getElementById('aikifu-config-model').value = config.model || 'ep-20250509112109-tqptk';
-            
+            // 先显示弹窗，避免 loadConfig 卡住导致无反应
             modal.style.setProperty('display', 'flex', 'important');
+            console.log('AIkeFu: modal display set to flex');
+            
+            try {
+                const config = await loadConfig();
+                console.log('AIkeFu: config loaded', config);
+                document.getElementById('aikifu-config-apikey').value = config.apiKey || '';
+                document.getElementById('aikifu-config-baseurl').value = config.baseUrl || 'https://ark.cn-beijing.volces.com/api/v3';
+                document.getElementById('aikifu-config-model').value = config.model || 'ep-20250509112109-tqptk';
+            } catch (err) {
+                console.error('AIkeFu: loadConfig failed', err);
+                // 即使加载失败，也保持弹窗显示，让用户可以重新输入
+            }
+        } else {
+            console.error('AIkeFu: settings modal not found');
         }
     }
 
