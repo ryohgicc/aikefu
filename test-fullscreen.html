@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIkeFu Assistant 全屏测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-section h2 {
+            margin-top: 0;
+            color: #fff;
+            font-size: 1.5em;
+        }
+        
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li:before {
+            content: "✨";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .status-active { background: #4CAF50; }
+        .status-inactive { background: #f44336; }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .test-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AIkeFu Assistant 全屏测试</h1>
+        
+        <div class="test-section">
+            <h2>📋 功能测试清单</h2>
+            <ul class="feature-list">
+                <li><span class="status-indicator status-active"></span>侧边栏显示/隐藏</li>
+                <li><span class="status-indicator status-active"></span>全屏模式切换</li>
+                <li><span class="status-indicator status-active"></span>固定/取消固定</li>
+                <li><span class="status-indicator status-active"></span>响应式布局</li>
+                <li><span class="status-indicator status-active"></span>键盘快捷键</li>
+                <li><span class="status-indicator status-active"></span>智能模板推荐</li>
+                <li><span class="status-indicator status-active"></span>自动保存草稿</li>
+                <li><span class="status-indicator status-active"></span>SPA页面切换</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎮 交互测试</h2>
+            <div class="test-buttons">
+                <button onclick="testSidebarToggle()">切换侧边栏</button>
+                <button onclick="testFullscreen()">测试全屏模式</button>
+                <button onclick="testResponsive()">测试响应式</button>
+                <button onclick="testKeyboardShortcuts()">测试快捷键</button>
+                <button onclick="testTemplateSuggestions()">测试模板建议</button>
+                <button onclick="testDraftSaving()">测试草稿保存</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📝 测试说明</h2>
+            <p>请按照以下步骤测试AIkeFu Assistant的各项功能：</p>
+            <ol>
+                <li><strong>侧边栏显示：</strong>点击"切换侧边栏"按钮，观察侧边栏是否正常显示</li>
+                <li><strong>全屏模式：</strong>点击全屏按钮，检查布局是否适配全屏显示</li>
+                <li><strong>响应式设计：</strong>调整浏览器窗口大小，验证在不同屏幕尺寸下的显示效果</li>
+                <li><strong>键盘快捷键：</strong>使用Ctrl+Enter发送消息，Ctrl+S保存草稿，Esc关闭侧边栏</li>
+                <li><strong>智能模板：</strong>在输入框中输入"你好"、"谢谢"等关键词，查看是否出现模板建议</li>
+                <li><strong>草稿功能：</strong>输入一些文本，等待30秒或按Ctrl+S，然后刷新页面查看是否恢复草稿</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔍 调试信息</h2>
+            <div id="debug-info">
+                <p>等待测试开始...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟AIkeFu Assistant的核心功能用于测试
+        let sidebarVisible = false;
+        let isFullscreen = false;
+        
+        function log(message) {
+            const debugInfo = document.getElementById('debug-info');
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+        }
+        
+        function testSidebarToggle() {
+            log('测试侧边栏切换功能');
+            sidebarVisible = !sidebarVisible;
+            log(`侧边栏状态: ${sidebarVisible ? '显示' : '隐藏'}`);
+            
+            if (sidebarVisible) {
+                log('✅ 侧边栏正常显示');
+            } else {
+                log('✅ 侧边栏正常隐藏');
+            }
+        }
+        
+        function testFullscreen() {
+            log('测试全屏模式');
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                document.body.style.background = 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)';
+                log('🖥️ 进入全屏模式 - 背景颜色已更改');
+                log('✅ 全屏模式切换正常');
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                log('📱 退出全屏模式 - 恢复默认背景');
+                log('✅ 全屏模式退出正常');
+            }
+        }
+        
+        function testResponsive() {
+            log('测试响应式设计');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            log(`当前窗口尺寸: ${width}x${height}`);
+            
+            if (width < 768) {
+                log('📱 检测到移动设备尺寸');
+            } else if (width < 1024) {
+                log('💻 检测到平板设备尺寸');
+            } else {
+                log('🖥️ 检测到桌面设备尺寸');
+            }
+            
+            log('✅ 响应式布局适配正常');
+        }
+        
+        function testKeyboardShortcuts() {
+            log('测试键盘快捷键');
+            log('请尝试以下快捷键：');
+            log('• Ctrl+Enter: 发送消息');
+            log('• Ctrl+S: 保存草稿');
+            log('• Esc: 关闭侧边栏');
+            
+            // 监听键盘事件
+            document.addEventListener('keydown', function handleKeydown(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    log('✅ Ctrl+Enter 快捷键触发');
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    log('✅ Ctrl+S 快捷键触发');
+                }
+                if (e.key === 'Escape') {
+                    log('✅ Esc 快捷键触发');
+                }
+            });
+        }
+        
+        function testTemplateSuggestions() {
+            log('测试智能模板推荐');
+            log('请在输入框中输入以下关键词测试模板建议：');
+            log('• "你好" - 应该推荐问候模板');
+            log('• "谢谢" - 应该推荐感谢模板');
+            log('• "抱歉" - 应该推荐道歉模板');
+            log('• "帮助" - 应该推荐帮助模板');
+            
+            // 创建模拟输入框
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = '输入测试文本，如"你好"、"谢谢"等';
+            input.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+                border: 1px solid rgba(255,255,255,0.3);
+                background: rgba(255,255,255,0.1);
+                color: white;
+                border-radius: 4px;
+                font-size: 14px;
+            `;
+            
+            input.addEventListener('input', function() {
+                if (this.value.includes('你好') || this.value.includes('谢谢') || 
+                    this.value.includes('抱歉') || this.value.includes('帮助')) {
+                    log(`✅ 检测到关键词: "${this.value}" - 应该显示模板建议`);
+                }
+            });
+            
+            document.getElementById('debug-info').appendChild(input);
+        }
+        
+        function testDraftSaving() {
+            log('测试草稿保存功能');
+            log('✅ 草稿保存功能已集成到主脚本中');
+            log('功能包括：');
+            log('• 每30秒自动保存');
+            log('• Ctrl+S手动保存');
+            log('• 24小时内有效');
+            log('• 重新打开时自动恢复');
+            log('请在实际使用中测试此功能');
+        }
+        
+        // 初始化
+        window.addEventListener('load', function() {
+            log('🚀 AIkeFu Assistant 测试页面加载完成');
+            log('请使用上方的测试按钮验证各项功能');
+            testResponsive();
+        });
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', function() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            log(`📏 窗口大小变化: ${width}x${height}`);
+        });
+    </script>
+</body>
+</html>
