@@ -1,22 +1,35 @@
 {
   "manifest_version": 3,
   "name": "AIkeFu Assistant",
-  "version": "1.0",
+  "version": "1.2",
   "description": "An AI assistant for customer service.",
   "permissions": [
     "storage",
     "clipboardWrite"
   ],
   "host_permissions": [
-    "https://ark.cn-beijing.volces.com/"
+    "https://ark.cn-beijing.volces.com/",
+    "https://feedback.midway.run/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://feedback.midway.run/*/*/feedback/reply/*"],
+      "js": ["content-script-optimized.js"],
+      "css": ["content-style.css"],
+      "run_at": "document_end"
+    }
+  ],
   "web_accessible_resources": [
     {
       "resources": ["config.js"],
       "matches": ["<all_urls>"]
+    },
+    {
+      "resources": ["content-script-optimized.js", "content-style.css"],
+      "matches": ["https://feedback.midway.run/*"]
     }
   ],
   "action": {
