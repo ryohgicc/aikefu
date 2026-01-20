@@ -62,47 +62,57 @@
                 </div>
             </div>
             <div class="aikifu-content">
-                <div class="aikifu-quick-actions">
-                    <button class="aikifu-quick-btn" data-template="greeting">👋 问候语</button>
-                    <button class="aikifu-quick-btn" data-template="thanks">🙏 感谢语</button>
-                    <button class="aikifu-quick-btn" data-template="apology">😔 道歉语</button>
-                    <button class="aikifu-quick-btn" data-template="help">❓ 帮助语</button>
-                </div>
-                <div class="aikifu-input-group">
-                    <label>用户问题：</label>
-                    <textarea class="aikifu-input" id="aikifu-question" placeholder="输入用户问题..."></textarea>
-                </div>
-                <div class="aikifu-input-group">
-                    <label>您的回答：</label>
-                    <textarea class="aikifu-input" id="aikifu-answer" placeholder="输入您的回答..."></textarea>
-                </div>
-                <div class="aikifu-buttons">
-                    <button class="aikifu-optimize-btn" id="aikifu-optimize">✨ 优化回答</button>
-                    <button class="aikifu-clear-btn" id="aikifu-clear">清空</button>
-                </div>
-                <div class="aikifu-loading" id="aikifu-loading" style="display:none;">
-                    <div class="aikifu-spinner"></div>
-                    <span>AI优化中...</span>
-                </div>
-                <div class="aikifu-results" id="aikifu-results" style="display:none;">
-                    <div class="aikifu-result">
-                        <div class="aikifu-result-header">
-                            <div class="aikifu-result-title">中文优化版本</div>
-                            <div class="aikifu-result-lang">🇨🇳</div>
+                <div class="aikifu-split-layout">
+                    <!-- 左侧操作区 -->
+                    <div class="aikifu-left-panel">
+                        <div class="aikifu-quick-actions">
+                            <button class="aikifu-quick-btn" data-template="greeting">👋 问候语</button>
+                            <button class="aikifu-quick-btn" data-template="thanks">🙏 感谢语</button>
+                            <button class="aikifu-quick-btn" data-template="apology">😔 道歉语</button>
+                            <button class="aikifu-quick-btn" data-template="help">❓ 帮助语</button>
                         </div>
-                        <div class="aikifu-result-content" id="aikifu-result-zh"></div>
-                        <button class="aikifu-copy-btn" data-target="aikifu-result-zh">📋 复制中文版本</button>
-                    </div>
-                    <div class="aikifu-result">
-                        <div class="aikifu-result-header">
-                            <div class="aikifu-result-title">原语言优化版本</div>
-                            <div class="aikifu-result-lang">🌍</div>
+                        <div class="aikifu-input-group">
+                            <label>用户问题：</label>
+                            <textarea class="aikifu-input" id="aikifu-question" placeholder="输入用户问题..."></textarea>
                         </div>
-                        <div class="aikifu-result-content" id="aikifu-result-en"></div>
-                        <button class="aikifu-copy-btn" data-target="aikifu-result-en">📋 复制原语言版本</button>
+                        <div class="aikifu-input-group">
+                            <label>您的回答：</label>
+                            <textarea class="aikifu-input" id="aikifu-answer" placeholder="输入您的回答..."></textarea>
+                        </div>
+                        <div class="aikifu-buttons">
+                            <button class="aikifu-optimize-btn" id="aikifu-optimize">✨ 优化回答</button>
+                            <button class="aikifu-clear-btn" id="aikifu-clear">清空</button>
+                        </div>
+                        <div class="aikifu-error" id="aikifu-error" style="display:none;"></div>
+                    </div>
+
+                    <!-- 右侧结果区 -->
+                    <div class="aikifu-right-panel">
+                        <div id="aikifu-empty-state" class="aikifu-empty-state">
+                            <div class="aikifu-empty-icon">🤖</div>
+                            <div>点击"优化回答"生成AI建议</div>
+                        </div>
+                        
+                        <div class="aikifu-results" id="aikifu-results" style="display:none;">
+                            <div class="aikifu-result">
+                                <div class="aikifu-result-header">
+                                    <div class="aikifu-result-title">中文优化版本</div>
+                                    <div class="aikifu-result-lang">🇨🇳</div>
+                                </div>
+                                <div class="aikifu-result-content" id="aikifu-result-zh"></div>
+                                <button class="aikifu-copy-btn" data-target="aikifu-result-zh">📋 复制中文版本</button>
+                            </div>
+                            <div class="aikifu-result">
+                                <div class="aikifu-result-header">
+                                    <div class="aikifu-result-title">原语言优化版本</div>
+                                    <div class="aikifu-result-lang">🌍</div>
+                                </div>
+                                <div class="aikifu-result-content" id="aikifu-result-en"></div>
+                                <button class="aikifu-copy-btn" data-target="aikifu-result-en">📋 复制原语言版本</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="aikifu-error" id="aikifu-error" style="display:none;"></div>
             </div>
         `;
         
@@ -140,7 +150,7 @@
                 position: fixed !important;
                 left: 0 !important;
                 top: 0 !important;
-                width: 400px !important;
+                width: 800px !important;
                 height: 100vh !important;
                 background: #ffffff !important;
                 border-right: 1px solid #e1e5e9 !important;
@@ -152,17 +162,51 @@
                 color: #333 !important;
                 display: flex !important;
                 flex-direction: column !important;
+                transition: width 0.3s ease !important;
+            }
+
+            /* 最小化时的样式覆盖 */
+            #aikifu-assistant.minimized {
+                width: 60px !important;
+                height: 60px !important;
+                overflow: hidden !important;
+                border-radius: 0 0 12px 0 !important;
             }
             
             .aikifu-header {
                 background: linear-gradient(135deg, #2196F3, #21CBF3) !important;
                 color: white !important;
-                padding: 20px 24px !important;
+                padding: 16px 24px !important;
                 display: flex !important;
                 justify-content: space-between !important;
                 align-items: center !important;
                 border-bottom: 1px solid rgba(255,255,255,0.2) !important;
                 flex-shrink: 0 !important;
+            }
+            
+            .aikifu-split-layout {
+                display: flex !important;
+                flex: 1 !important;
+                overflow: hidden !important;
+            }
+
+            .aikifu-left-panel {
+                flex: 1 !important;
+                padding: 20px !important;
+                overflow-y: auto !important;
+                border-right: 1px solid #e1e5e9 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                min-width: 350px !important;
+            }
+
+            .aikifu-right-panel {
+                flex: 1 !important;
+                padding: 20px !important;
+                overflow-y: auto !important;
+                background: #f8fafc !important;
+                display: flex !important;
+                flex-direction: column !important;
             }
             
             .aikifu-header-left {
@@ -232,10 +276,11 @@
                 transform: rotate(45deg) !important;
             }
             
+            /* 旧的 content 类名保留但样式调整 */
             .aikifu-content {
-                padding: 20px !important;
+                padding: 0 !important;
                 flex: 1 !important;
-                overflow-y: auto !important;
+                overflow: hidden !important;
                 display: flex !important;
                 flex-direction: column !important;
             }
@@ -294,7 +339,7 @@
             
             .aikifu-input {
                 width: 100% !important;
-                min-height: 80px !important;
+                min-height: 120px !important;
                 padding: 12px 16px !important;
                 border: 1px solid #d1d5db !important;
                 border-radius: 8px !important;
@@ -316,7 +361,8 @@
             .aikifu-buttons {
                 display: flex !important;
                 gap: 12px !important;
-                margin-bottom: 24px !important;
+                margin-top: auto !important;
+                margin-bottom: 0 !important;
             }
             
             .aikifu-optimize-btn {
@@ -361,20 +407,25 @@
             
             .aikifu-loading {
                 text-align: center !important;
-                padding: 16px !important;
-                background: #f8fafc !important;
+                padding: 40px 20px !important;
+                background: transparent !important;
                 border-radius: 6px !important;
-                margin: 8px 0 !important;
+                margin: auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                height: 100% !important;
             }
             
             .aikifu-spinner {
-                width: 24px !important;
-                height: 24px !important;
+                width: 32px !important;
+                height: 32px !important;
                 border: 3px solid #e5e7eb !important;
                 border-top: 3px solid #2196F3 !important;
                 border-radius: 50% !important;
                 animation: aikifu-spin 1s linear infinite !important;
-                margin: 0 auto 8px !important;
+                margin: 0 auto 12px !important;
             }
             
             @keyframes aikifu-spin {
@@ -384,22 +435,24 @@
             
             .aikifu-loading span {
                 color: #6b7280 !important;
-                font-size: 13px !important;
+                font-size: 14px !important;
             }
             
             .aikifu-results {
-                margin-top: 24px !important;
+                margin-top: 0 !important;
                 flex: 1 !important;
                 overflow-y: auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 16px !important;
             }
             
             .aikifu-result {
-                background: linear-gradient(135deg, #f0f9ff, #e0f2fe) !important;
-                border: 1px solid #bae6fd !important;
+                background: white !important;
+                border: 1px solid #e2e8f0 !important;
                 border-radius: 12px !important;
                 padding: 16px !important;
-                margin-bottom: 12px !important;
-                box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1) !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
             }
             
             .aikifu-result-title {
@@ -423,9 +476,9 @@
             }
             
             .aikifu-result-content {
-                background: white !important;
+                background: #f8fafc !important;
                 padding: 16px !important;
-                border: 2px solid #dbeafe !important;
+                border: 1px solid #e2e8f0 !important;
                 border-radius: 8px !important;
                 margin-bottom: 12px !important;
                 font-size: 14px !important;
@@ -433,26 +486,26 @@
                 min-height: 60px !important;
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
-                box-shadow: inset 0 1px 3px rgba(0,0,0,0.05) !important;
+                color: #333 !important;
             }
             
             .aikifu-copy-btn {
                 padding: 8px 16px !important;
-                background: linear-gradient(135deg, #3b82f6, #60a5fa) !important;
-                border: none !important;
+                background: white !important;
+                border: 1px solid #d1d5db !important;
                 border-radius: 6px !important;
                 cursor: pointer !important;
                 font-size: 13px !important;
-                color: white !important;
+                color: #4b5563 !important;
                 font-weight: 500 !important;
                 transition: all 0.2s !important;
-                box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3) !important;
+                width: 100% !important;
             }
             
             .aikifu-copy-btn:hover {
                 background: #f3f4f6 !important;
-                color: #374151 !important;
                 border-color: #9ca3af !important;
+                color: #111 !important;
             }
             
             .aikifu-copy-btn.copied {
@@ -470,23 +523,43 @@
                 font-size: 13px !important;
                 margin-top: 8px !important;
             }
+
+            .aikifu-empty-state {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                height: 100% !important;
+                color: #94a3b8 !important;
+                text-align: center !important;
+                padding: 20px !important;
+            }
+
+            .aikifu-empty-icon {
+                font-size: 48px !important;
+                margin-bottom: 16px !important;
+                opacity: 0.5 !important;
+            }
             
             /* 自定义滚动条 */
-            .aikifu-content::-webkit-scrollbar {
-                width: 8px !important;
+            .aikifu-left-panel::-webkit-scrollbar,
+            .aikifu-right-panel::-webkit-scrollbar {
+                width: 6px !important;
             }
             
-            .aikifu-content::-webkit-scrollbar-track {
-                background: #f1f5f9 !important;
-                border-radius: 4px !important;
+            .aikifu-left-panel::-webkit-scrollbar-track,
+            .aikifu-right-panel::-webkit-scrollbar-track {
+                background: transparent !important;
             }
             
-            .aikifu-content::-webkit-scrollbar-thumb {
+            .aikifu-left-panel::-webkit-scrollbar-thumb,
+            .aikifu-right-panel::-webkit-scrollbar-thumb {
                 background: #cbd5e1 !important;
-                border-radius: 4px !important;
+                border-radius: 3px !important;
             }
             
-            .aikifu-content::-webkit-scrollbar-thumb:hover {
+            .aikifu-left-panel::-webkit-scrollbar-thumb:hover,
+            .aikifu-right-panel::-webkit-scrollbar-thumb:hover {
                 background: #94a3b8 !important;
             }
         `;
@@ -608,7 +681,11 @@
     function showResults(optimizedAnswer) {
         document.getElementById('aikifu-result-zh').textContent = optimizedAnswer.zh;
         document.getElementById('aikifu-result-en').textContent = optimizedAnswer.optimized_reply;
-        document.getElementById('aikifu-results').style.display = 'block';
+        
+        const emptyState = document.getElementById('aikifu-empty-state');
+        if (emptyState) emptyState.style.display = 'none';
+        
+        document.getElementById('aikifu-results').style.display = 'flex';
     }
     
     // 清空表单
@@ -617,34 +694,57 @@
         document.getElementById('aikifu-answer').value = '';
         document.getElementById('aikifu-results').style.display = 'none';
         document.getElementById('aikifu-error').style.display = 'none';
+        
+        const emptyState = document.getElementById('aikifu-empty-state');
+        if (emptyState) emptyState.style.display = 'flex';
     }
     
     // 最小化/展开
     function toggleMinimize() {
+        const container = document.getElementById('aikifu-assistant');
         const content = document.querySelector('.aikifu-content');
         const btn = document.querySelector('.aikifu-minimize');
         
-        if (content.style.display === 'none') {
-            content.style.display = 'block';
-            btn.textContent = '−';
-            btn.title = '最小化';
-        } else {
+        // 切换 minimized 类
+        container.classList.toggle('minimized');
+        
+        if (container.classList.contains('minimized')) {
             content.style.display = 'none';
             btn.textContent = '+';
             btn.title = '展开';
+        } else {
+            content.style.display = 'flex';
+            btn.textContent = '−';
+            btn.title = '最小化';
         }
     }
     
     // 显示/隐藏加载状态
     function showLoading(show) {
-        const loading = document.getElementById('aikifu-loading');
+        // 用户不需要加载标识，仅更新按钮状态和隐藏结果
         const results = document.getElementById('aikifu-results');
+        const emptyState = document.getElementById('aikifu-empty-state');
+        const optimizeBtn = document.getElementById('aikifu-optimize');
         
         if (show) {
-            loading.style.display = 'block';
-            results.style.display = 'none';
+            // 优化中状态
+            if (optimizeBtn) {
+                optimizeBtn.textContent = '优化中...';
+                optimizeBtn.disabled = true;
+                optimizeBtn.style.opacity = '0.7';
+                optimizeBtn.style.cursor = 'not-allowed';
+            }
+            
+            if (results) results.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'none';
         } else {
-            loading.style.display = 'none';
+            // 恢复正常状态
+            if (optimizeBtn) {
+                optimizeBtn.textContent = '✨ 优化回答';
+                optimizeBtn.disabled = false;
+                optimizeBtn.style.opacity = '1';
+                optimizeBtn.style.cursor = 'pointer';
+            }
         }
     }
     
@@ -690,79 +790,96 @@
             let extractedContent = null;
             let contentSource = '';
             
-            // 优先查找特定的回复内容元素
-            const replyContent = document.querySelector('div.text___1gPRS');
-            if (replyContent) {
-                const text = replyContent.textContent.trim();
+            // 严格模式：只查找用户指定的特定回复内容元素
+            // 优先匹配 div.text___1gPRS
+            const replyElements = document.querySelectorAll('div.text___1gPRS');
+            
+            if (replyElements.length > 0) {
+                // 如果有多个，优先选择最后一个（通常是最近渲染的）
+                let targetElement = replyElements[replyElements.length - 1];
+                
+                const text = targetElement.textContent.trim();
                 if (text.length > 0) {
                     extractedContent = text;
-                    contentSource = '特定回复元素';
+                    contentSource = '特定回复元素(text___1gPRS)';
                 }
-            }
-            
-            // 备用方案：尝试提取页面中的用户反馈内容
-            if (!extractedContent) {
-                const feedbackElements = document.querySelectorAll('[class*="feedback"], [class*="content"], [class*="message"]');
-                
-                for (let element of feedbackElements) {
-                    const text = element.textContent.trim();
-                    if (text.length > 10 && text.length < 500) {
+            } else {
+                // 备用方案：尝试匹配包含该类名的元素，防止样式哈希变化（虽然用户指定了固定类名）
+                // 仅作为调试或备用，如果用户确定类名固定，此步可作为补充
+                const fuzzyElements = document.querySelectorAll('div[class*="text___"]');
+                if (fuzzyElements.length > 0) {
+                    let targetElement = fuzzyElements[fuzzyElements.length - 1];
+                    const text = targetElement.textContent.trim();
+                    if (text.length > 0) {
                         extractedContent = text;
-                        contentSource = '反馈内容元素';
-                        break;
+                        contentSource = '模糊匹配元素(text___)';
+                        console.log('AIkeFu Assistant: 使用模糊匹配找到内容', targetElement.className);
                     }
                 }
             }
             
-            // 如果提取到内容，进行智能处理
+            // 如果提取到内容，进行处理
             if (extractedContent) {
-                console.log(`AIkeFu Assistant: 从${contentSource}提取内容:`, extractedContent.substring(0, 50) + '...');
-                
-                // 分析内容并生成智能回复
-                const smartReply = generateSmartReply(extractedContent);
-                console.log('AIkeFu Assistant: 内容分析结果:', smartReply.analysis);
-                
-                // 填充到问题输入框
                 const questionInput = document.getElementById('aikifu-question');
-                if (questionInput && !questionInput.value) {
-                    questionInput.value = extractedContent;
-                }
                 
-                // 填充到答案输入框（提供智能回复建议）
-                const answerInput = document.getElementById('aikifu-answer');
-                if (answerInput && !answerInput.value) {
-                    answerInput.value = smartReply.primaryReply;
-                    answerInput.placeholder = `智能回复建议: ${smartReply.primaryReply}`;
-                    
-                    // 如果有多个建议，显示在结果区域
-                    if (smartReply.suggestions.length > 1) {
-                        const resultsDiv = document.getElementById('aikifu-results');
-                        if (resultsDiv) {
-                            resultsDiv.innerHTML = `
-                                <div style="margin-bottom: 10px; padding: 10px; background: #e3f2fd; border-radius: 4px; border-left: 3px solid #2196F3;">
-                                    <strong>💡 智能回复建议:</strong><br>
-                                    ${smartReply.suggestions.map((suggestion, index) => 
-                                        `<div style="margin: 5px 0; cursor: pointer; padding: 5px; border-radius: 3px;" 
-                                              onclick="document.getElementById('aikifu-answer').value='${suggestion.replace(/'/g, "\\'")}'"
-                                              onmouseover="this.style.background='#bbdefb'"
-                                              onmouseout="this.style.background='none'">
-                                            ${index + 1}. ${suggestion}
-                                        </div>`
-                                    ).join('')}
-                                </div>
-                            `;
-                            resultsDiv.style.display = 'block';
+                // 仅当内容不同时才更新，避免光标跳动
+                // 如果输入框为空，或者内容与提取的不一致（且不是用户手动修改的），则更新
+                // 为了简单起见，如果内容不一致就更新，但为了不打断用户输入，可以加一个检查
+                if (questionInput && questionInput.value !== extractedContent) {
+                    // 如果输入框有焦点，且已经有内容，可能是用户正在修改，暂时不覆盖
+                    if (document.activeElement === questionInput && questionInput.value.trim() !== '') {
+                        console.log('AIkeFu Assistant: 用户正在输入，暂不覆盖内容');
+                    } else {
+                        console.log(`AIkeFu Assistant: 从${contentSource}提取内容并更新:`, extractedContent.substring(0, 50) + '...');
+                        questionInput.value = extractedContent;
+                        
+                        // 只有在首次提取或内容发生实质变化时才重新生成建议
+                        // 避免频繁调用 API 或刷新建议
+                        const smartReply = generateSmartReply(extractedContent);
+                        
+                        const answerInput = document.getElementById('aikifu-answer');
+                        if (answerInput && !answerInput.value) {
+                            answerInput.value = smartReply.primaryReply;
+                            answerInput.placeholder = `智能回复建议: ${smartReply.primaryReply}`;
+                            
+                            if (smartReply.suggestions.length > 1) {
+                                const resultsDiv = document.getElementById('aikifu-results');
+                                if (resultsDiv) {
+                                    // 仅当结果区未显示（即未进行优化）时才显示建议
+                                    // 或者我们可以专门开辟一个建议区，不复用 resultsDiv
+                                    // 这里暂时保持原逻辑，但在用户明确要求不显示loading时，
+                                    // 我们利用这个区域显示建议是合理的，只要不是"loading"样式
+                                    
+                                    // 注意：之前删除了 loading，现在 resultsDiv 用于显示最终结果
+                                    // 这里我们可以插入建议，但要注意不要覆盖"优化后的结果"
+                                    // 如果 resultsDiv 是隐藏的，我们可以用它显示建议
+                                    if (resultsDiv.style.display === 'none') {
+                                        resultsDiv.innerHTML = `
+                                            <div style="margin-bottom: 10px; padding: 10px; background: #e3f2fd; border-radius: 4px; border-left: 3px solid #2196F3;">
+                                                <strong>💡 智能回复建议:</strong><br>
+                                                ${smartReply.suggestions.map((suggestion, index) => 
+                                                    `<div style="margin: 5px 0; cursor: pointer; padding: 5px; border-radius: 3px;" 
+                                                          onclick="document.getElementById('aikifu-answer').value='${suggestion.replace(/'/g, "\\'")}'"
+                                                          onmouseover="this.style.background='#bbdefb'"
+                                                          onmouseout="this.style.background='none'">
+                                                        ${index + 1}. ${suggestion}
+                                                    </div>`
+                                                ).join('')}
+                                            </div>
+                                        `;
+                                        resultsDiv.style.display = 'block';
+                                    }
+                                }
+                            }
                         }
+                        
+                        showNotification(`已提取用户问题`, 'success');
                     }
                 }
-                
-                // 显示通知
-                showNotification(`已提取${contentSource}内容并生成智能回复建议`, 'success');
             }
             
         } catch (e) {
             console.log('自动提取内容失败:', e);
-            showNotification('自动提取内容失败', 'error');
         }
     }
     
