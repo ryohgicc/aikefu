@@ -64,10 +64,42 @@
                     <span class="aikifu-subtitle">智能回答优化</span>
                 </div>
                 <div class="aikifu-header-right">
+                    <button class="aikifu-settings-btn" id="aikifu-settings" title="配置设置">⚙️</button>
                     <button class="aikifu-pin-btn" id="aikifu-pin" title="固定窗口">📌</button>
                     <button class="aikifu-minimize" title="最小化">−</button>
                 </div>
             </div>
+            
+            <!-- 设置弹窗 -->
+            <div id="aikifu-settings-modal" class="aikifu-modal" style="display: none !important;">
+                <div class="aikifu-modal-content">
+                    <h2 class="aikifu-modal-title">配置设置</h2>
+                    
+                    <div class="aikifu-form-group">
+                        <label>API Key:</label>
+                        <input type="password" class="aikifu-input aikifu-settings-input" id="aikifu-config-apikey" placeholder="请输入 API Key">
+                    </div>
+                    
+                    <div class="aikifu-form-group">
+                        <label>Base URL:</label>
+                        <input type="text" class="aikifu-input aikifu-settings-input" id="aikifu-config-baseurl" placeholder="https://ark.cn-beijing.volces.com/api/v3">
+                    </div>
+                    
+                    <div class="aikifu-form-group">
+                        <label>Model:</label>
+                        <input type="text" class="aikifu-input aikifu-settings-input" id="aikifu-config-model" placeholder="ep-20250509112109-tqptk">
+                    </div>
+                    
+                    <div class="aikifu-modal-actions">
+                        <button id="aikifu-config-save" class="aikifu-btn-primary">保存配置</button>
+                        <button id="aikifu-config-reset" class="aikifu-btn-danger">重置默认</button>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <a href="#" id="aikifu-config-close" style="color: #666; text-decoration: none; font-size: 12px;">关闭</a>
+                    </div>
+                </div>
+            </div>
+
             <div class="aikifu-content">
                 <div class="aikifu-split-layout">
                     <!-- 左侧操作区 -->
@@ -133,6 +165,109 @@
         
         // 尝试提取页面内容
         setTimeout(extractPageContent, 1000);
+
+        // 检查配置
+        checkConfig();
+    }
+    
+    // Expose for testing/debugging
+    window.createSidebar = createSidebar;
+    
+    // 检查配置，如果没有配置则显示设置弹窗
+    async function checkConfig() {
+        const config = await loadConfig();
+        if (!config.apiKey) {
+            console.log('AIkeFu Assistant: 未检测到API Key，显示设置弹窗');
+            showSettings();
+        }
+    }
+
+    // 加载配置
+    function loadConfig() {
+        return new Promise((resolve) => {
+            chrome.storage.local.get(['aikefu_config'], (result) => {
+                const config = result.aikefu_config || {
+                    apiKey: '',
+                    baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
+                    model: 'ep-20250509112109-tqptk'
+                };
+                resolve(config);
+            });
+        });
+    }
+
+    // 显示设置弹窗
+    async function showSettings() {
+        const modal = document.getElementById('aikifu-settings-modal');
+        if (modal) {
+            const config = await loadConfig();
+            document.getElementById('aikifu-config-apikey').value = config.apiKey || '';
+            document.getElementById('aikifu-config-baseurl').value = config.baseUrl || 'https://ark.cn-beijing.volces.com/api/v3';
+            document.getElementById('aikifu-config-model').value = config.model || 'ep-20250509112109-tqptk';
+            
+            modal.style.setProperty('display', 'flex', 'important');
+        }
+    }
+
+    // 隐藏设置弹窗
+    function hideSettings() {
+        const modal = document.getElementById('aikifu-settings-modal');
+        if (modal) {
+            modal.style.setProperty('display', 'none', 'important');
+        }
+    }
+
+    // 保存配置
+    function saveConfig() {
+        const apiKey = document.getElementById('aikifu-config-apikey').value.trim();
+        const baseUrl = document.getElementById('aikifu-config-baseurl').value.trim();
+        const model = document.getElementById('aikifu-config-model').value.trim();
+
+        if (!apiKey) {
+            alert('请输入 API Key');
+            return;
+        }
+
+        const config = {
+            apiKey: apiKey,
+            baseUrl: baseUrl || 'https://ark.cn-beijing.volces.com/api/v3',
+            model: model || 'ep-20250509112109-tqptk'
+        };
+
+        chrome.storage.local.set({ 'aikefu_config': config }, () => {
+            console.log('AIkeFu Assistant: 配置已保存');
+            hideSettings();
+            showNotification('配置已保存', 'success');
+        });
+    }
+
+    // 重置配置
+    function resetConfig() {
+        if (confirm('确定要重置为默认配置吗？')) {
+            document.getElementById('aikifu-config-apikey').value = '';
+            document.getElementById('aikifu-config-baseurl').value = 'https://ark.cn-beijing.volces.com/api/v3';
+            document.getElementById('aikifu-config-model').value = 'ep-20250509112109-tqptk';
+        }
+    }
+
+    // 显示通知 (复用现有的或新建)
+    function showNotification(message, type = 'info') {
+        // 如果有现成的 showError，也可以改造成通用的 notification
+        // 这里简单实现一个
+        const errorDiv = document.getElementById('aikifu-error');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.style.background = type === 'success' ? '#dcfce7' : '#fee2e2';
+            errorDiv.style.color = type === 'success' ? '#166534' : '#991b1b';
+            errorDiv.style.border = type === 'success' ? '1px solid #86efac' : '1px solid #fecaca';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        } else {
+            alert(message);
+        }
     }
     
     // 移除侧边栏
@@ -283,6 +418,109 @@
             .aikifu-pin-btn.pinned {
                 background: rgba(255,255,255,0.4) !important;
                 transform: rotate(45deg) !important;
+            }
+
+            .aikifu-settings-btn {
+                background: rgba(255,255,255,0.2) !important;
+                border: none !important;
+                color: white !important;
+                width: 32px !important;
+                height: 32px !important;
+                border-radius: 6px !important;
+                cursor: pointer !important;
+                font-size: 16px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: all 0.2s !important;
+            }
+            
+            .aikifu-settings-btn:hover {
+                background: rgba(255,255,255,0.3) !important;
+            }
+
+            .aikifu-modal {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0,0,0,0.5) !important;
+                z-index: 2147483648 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                backdrop-filter: blur(2px) !important;
+            }
+
+            .aikifu-modal-content {
+                background: white !important;
+                width: 90% !important;
+                max-width: 500px !important;
+                padding: 30px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+                animation: aikifu-modal-in 0.3s ease-out !important;
+            }
+
+            @keyframes aikifu-modal-in {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .aikifu-modal-title {
+                text-align: center !important;
+                margin-top: 0 !important;
+                margin-bottom: 25px !important;
+                color: #333 !important;
+                font-size: 20px !important;
+                font-weight: 700 !important;
+            }
+
+            .aikifu-settings-input {
+                min-height: 40px !important;
+                padding: 8px 12px !important;
+                margin-bottom: 5px !important;
+            }
+
+            .aikifu-modal-actions {
+                display: flex !important;
+                gap: 15px !important;
+                margin-top: 25px !important;
+            }
+
+            .aikifu-btn-primary {
+                flex: 1 !important;
+                padding: 12px !important;
+                background: #4caf50 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 6px !important;
+                cursor: pointer !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
+                transition: background 0.2s !important;
+            }
+
+            .aikifu-btn-primary:hover {
+                background: #43a047 !important;
+            }
+
+            .aikifu-btn-danger {
+                flex: 1 !important;
+                padding: 12px !important;
+                background: #f44336 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 6px !important;
+                cursor: pointer !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
+                transition: background 0.2s !important;
+            }
+
+            .aikifu-btn-danger:hover {
+                background: #e53935 !important;
             }
             
             /* 旧的 content 类名保留但样式调整 */
@@ -579,16 +817,37 @@
     // 设置事件监听器
     function setupEventListeners() {
         // 优化按钮
-        document.getElementById('aikifu-optimize').addEventListener('click', optimizeAnswer);
+        const optimizeBtn = document.getElementById('aikifu-optimize');
+        if (optimizeBtn) optimizeBtn.addEventListener('click', optimizeAnswer);
         
         // 清空按钮
-        document.getElementById('aikifu-clear').addEventListener('click', clearForm);
+        const clearBtn = document.getElementById('aikifu-clear');
+        if (clearBtn) clearBtn.addEventListener('click', clearForm);
         
         // 最小化按钮
-        document.querySelector('.aikifu-minimize').addEventListener('click', toggleMinimize);
+        const minimizeBtn = document.querySelector('.aikifu-minimize');
+        if (minimizeBtn) minimizeBtn.addEventListener('click', toggleMinimize);
         
         // 固定按钮
-        document.getElementById('aikifu-pin').addEventListener('click', togglePin);
+        const pinBtn = document.getElementById('aikifu-pin');
+        if (pinBtn) pinBtn.addEventListener('click', togglePin);
+
+        // 设置按钮
+        const settingsBtn = document.getElementById('aikifu-settings');
+        if (settingsBtn) settingsBtn.addEventListener('click', showSettings);
+
+        // 设置弹窗按钮
+        const saveConfigBtn = document.getElementById('aikifu-config-save');
+        if (saveConfigBtn) saveConfigBtn.addEventListener('click', saveConfig);
+
+        const resetConfigBtn = document.getElementById('aikifu-config-reset');
+        if (resetConfigBtn) resetConfigBtn.addEventListener('click', resetConfig);
+
+        const closeConfigBtn = document.getElementById('aikifu-config-close');
+        if (closeConfigBtn) closeConfigBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideSettings();
+        });
         
         // 快速操作按钮
         document.querySelectorAll('.aikifu-quick-btn').forEach(btn => {

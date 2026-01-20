@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIkeFu Settings Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        button {
+            padding: 8px 16px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #40a9ff;
+        }
+        .status {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button onclick="triggerSidebar()">显示侧边栏</button>
+        <button onclick="clearStorage()">清除配置 (模拟新安装)</button>
+        <button onclick="setStorage()">设置配置 (模拟已配置)</button>
+        <div id="status" class="status"></div>
+    </div>
+
+    <h1>AIkeFu Settings Test Page</h1>
+    <p>Use the controls to test the settings functionality.</p>
+
+    <script>
+        // Mock Storage
+        const mockStorage = {
+            data: {},
+            get: function(keys, callback) {
+                console.log('Storage GET:', keys);
+                const result = {};
+                if (Array.isArray(keys)) {
+                    keys.forEach(k => result[k] = this.data[k]);
+                } else {
+                    result[keys] = this.data[keys];
+                }
+                setTimeout(() => callback(result), 10);
+            },
+            set: function(items, callback) {
+                console.log('Storage SET:', items);
+                Object.assign(this.data, items);
+                setTimeout(() => {
+                    if (callback) callback();
+                }, 10);
+            },
+            clear: function() {
+                this.data = {};
+            }
+        };
+
+        // Mock chrome API
+        window.chrome = {
+            runtime: {
+                sendMessage: function(message) {
+                    console.log('Mock sendMessage:', message);
+                    return new Promise((resolve) => {
+                        setTimeout(() => resolve({}), 100);
+                    });
+                },
+                onMessage: {
+                    addListener: function() {}
+                }
+            },
+            storage: {
+                local: mockStorage
+            }
+        };
+
+        function triggerSidebar() {
+            if (window.createSidebar) {
+                window.createSidebar();
+                updateStatus('Sidebar created');
+            } else {
+                updateStatus('createSidebar not found');
+            }
+        }
+
+        function clearStorage() {
+            mockStorage.clear();
+            updateStatus('Storage cleared. Next sidebar open should show settings.');
+        }
+
+        function setStorage() {
+            mockStorage.set({
+                'aikefu_config': {
+                    apiKey: 'test-key',
+                    baseUrl: 'https://test.url',
+                    model: 'test-model'
+                }
+            });
+            updateStatus('Storage set. Next sidebar open should NOT show settings.');
+        }
+
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = msg;
+            console.log(msg);
+        }
+    </script>
+    
+    <!-- Load the content script -->
+    <script src="content-script-spa.js"></script>
+</body>
+</html>
