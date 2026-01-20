@@ -100,7 +100,7 @@
                             <div>点击"优化回答"生成AI建议</div>
                         </div>
                         
-                        <div class="aikifu-results" id="aikifu-results" style="display:none;">
+                        <div class="aikifu-results" id="aikifu-results" style="display:none !important;">
                             <div class="aikifu-result">
                                 <div class="aikifu-result-header">
                                     <div class="aikifu-result-title">中文优化版本</div>
@@ -709,11 +709,13 @@
         if (enElem) enElem.textContent = optimizedAnswer.optimized_reply;
         
         const emptyState = document.getElementById('aikifu-empty-state');
-        if (emptyState) emptyState.style.display = 'none';
+        if (emptyState) {
+            emptyState.style.setProperty('display', 'none', 'important');
+        }
         
         const resultsContainer = document.getElementById('aikifu-results');
         if (resultsContainer) {
-             resultsContainer.style.display = 'flex';
+             resultsContainer.style.setProperty('display', 'flex', 'important');
              console.log('AIkeFu: 结果区域已设置为 visible');
         } else {
              console.error('AIkeFu: 找不到结果区域元素 #aikifu-results');
@@ -724,11 +726,20 @@
     function clearForm() {
         document.getElementById('aikifu-question').value = '';
         document.getElementById('aikifu-answer').value = '';
-        document.getElementById('aikifu-results').style.display = 'none';
+        
+        const results = document.getElementById('aikifu-results');
+        if (results) {
+            results.style.setProperty('display', 'none', 'important');
+        }
+        
         document.getElementById('aikifu-error').style.display = 'none';
         
         const emptyState = document.getElementById('aikifu-empty-state');
-        if (emptyState) emptyState.style.display = 'flex';
+        if (emptyState) {
+            emptyState.style.setProperty('display', 'flex', 'important');
+        }
+        
+        hideError();
     }
     
     // 最小化/展开
@@ -753,7 +764,6 @@
     
     // 显示/隐藏加载状态
     function showLoading(show) {
-        // 用户不需要加载标识，仅更新按钮状态和隐藏结果
         const results = document.getElementById('aikifu-results');
         const emptyState = document.getElementById('aikifu-empty-state');
         const optimizeBtn = document.getElementById('aikifu-optimize');
@@ -761,14 +771,34 @@
         if (show) {
             // 优化中状态
             if (optimizeBtn) {
-                optimizeBtn.textContent = '优化中...';
+                optimizeBtn.innerHTML = `
+                    <div class="aikifu-spinner" style="width: 16px !important; height: 16px !important; margin: 0 !important; border-width: 2px !important; display: inline-block !important; vertical-align: middle !important;"></div>
+                    <span>优化中...</span>
+                `;
                 optimizeBtn.disabled = true;
                 optimizeBtn.style.opacity = '0.7';
                 optimizeBtn.style.cursor = 'not-allowed';
             }
             
-            if (results) results.style.display = 'none';
-            if (emptyState) emptyState.style.display = 'none';
+            if (results) results.style.setProperty('display', 'none', 'important');
+            if (emptyState) emptyState.style.setProperty('display', 'none', 'important');
+            
+            // 显示加载动画
+            const rightPanel = document.querySelector('.aikifu-right-panel');
+            if (rightPanel) {
+                let loading = document.getElementById('aikifu-loading-state');
+                if (!loading) {
+                    loading = document.createElement('div');
+                    loading.id = 'aikifu-loading-state';
+                    loading.className = 'aikifu-loading';
+                    loading.innerHTML = `
+                        <div class="aikifu-spinner"></div>
+                        <span>AI正在思考优化方案...</span>
+                    `;
+                    rightPanel.appendChild(loading);
+                }
+                loading.style.setProperty('display', 'flex', 'important');
+            }
         } else {
             // 恢复正常状态
             if (optimizeBtn) {
@@ -777,6 +807,10 @@
                 optimizeBtn.style.opacity = '1';
                 optimizeBtn.style.cursor = 'pointer';
             }
+            
+            // 移除加载动画
+            const loading = document.getElementById('aikifu-loading-state');
+            if (loading) loading.remove();
         }
     }
     
