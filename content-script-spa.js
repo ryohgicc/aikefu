@@ -146,8 +146,10 @@
     
     // 注入样式
     function injectStyles() {
-        if (document.getElementById('aikifu-styles')) {
-            return; // 样式已存在
+        // 总是移除旧样式以确保更新
+        const oldStyle = document.getElementById('aikifu-styles');
+        if (oldStyle) {
+            oldStyle.remove();
         }
         
         const style = document.createElement('style');
