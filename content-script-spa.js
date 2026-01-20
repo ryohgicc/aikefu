@@ -41,6 +41,13 @@
     
     // 创建侧边栏
     function createSidebar() {
+        // 检查并清理旧的 DOM 元素（如果有）
+        const oldSidebar = document.getElementById('aikifu-assistant');
+        if (oldSidebar) {
+            console.log('AIkeFu Assistant: 清理旧的侧边栏元素');
+            oldSidebar.remove();
+        }
+
         if (sidebarElement) {
             console.log('侧边栏已存在');
             return;
