@@ -139,7 +139,7 @@
                                     <div class="aikifu-result-lang">🇨🇳</div>
                                 </div>
                                 <div class="aikifu-result-content" id="aikifu-result-zh"></div>
-                                <button class="aikifu-copy-btn" data-target="aikifu-result-zh">📋 复制中文版本</button>
+                                <button class="aikifu-copy-btn" data-target="aikifu-result-zh">📋 复制并粘贴中文版本</button>
                             </div>
                             <div class="aikifu-result">
                                 <div class="aikifu-result-header">
@@ -147,7 +147,7 @@
                                     <div class="aikifu-result-lang">🌍</div>
                                 </div>
                                 <div class="aikifu-result-content" id="aikifu-result-en"></div>
-                                <button class="aikifu-copy-btn" data-target="aikifu-result-en">📋 复制原语言版本</button>
+                                <button class="aikifu-copy-btn" data-target="aikifu-result-en">📋 复制并粘贴原语言版本</button>
                             </div>
                         </div>
                     </div>
