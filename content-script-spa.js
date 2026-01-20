@@ -327,6 +327,38 @@
                 overflow: hidden !important;
                 border-radius: 0 0 12px 0 !important;
             }
+
+            #aikifu-assistant.minimized .aikifu-header {
+                padding: 0 !important;
+                justify-content: center !important;
+                height: 100% !important;
+            }
+
+            #aikifu-assistant.minimized .aikifu-header-left,
+            #aikifu-assistant.minimized .aikifu-settings-btn,
+            #aikifu-assistant.minimized .aikifu-pin-btn {
+                display: none !important;
+            }
+            
+            #aikifu-assistant.minimized .aikifu-header-right {
+                width: 100% !important;
+                height: 100% !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                gap: 0 !important;
+            }
+
+            #aikifu-assistant.minimized .aikifu-minimize {
+                width: 100% !important;
+                height: 100% !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                font-size: 24px !important;
+            }
+            
+            #aikifu-assistant.minimized .aikifu-minimize:hover {
+                background: rgba(255,255,255,0.1) !important;
+            }
             
             .aikifu-header {
                 background: linear-gradient(135deg, #2196F3, #21CBF3) !important;
