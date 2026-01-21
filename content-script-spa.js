@@ -887,6 +887,8 @@
             content.textContent = '正在翻译...';
             content.style.opacity = '0.7';
             
+            // 只有当智能建议也不显示时，才去控制 emptyState
+            // 但其实 emptyState 应该是由内容决定的
             if (emptyState) emptyState.style.display = 'none';
 
             try {
@@ -914,8 +916,13 @@
     function hideTranslationBox() {
         const box = document.getElementById('aikifu-translation-box');
         const emptyState = document.getElementById('aikifu-empty-state');
+        
         if (box) box.style.display = 'none';
-        if (emptyState) emptyState.style.removeProperty('display'); // 恢复 empty state 的显示
+        
+        // 显示 empty state
+        if (emptyState) {
+            emptyState.style.removeProperty('display');
+        }
     }
 
     // 设置事件监听器
@@ -1325,46 +1332,6 @@
                         // 触发翻译
                         translateQuestion(extractedContent);
                         
-                        // 只有在首次提取或内容发生实质变化时才重新生成建议
-                        // 避免频繁调用 API 或刷新建议
-                        const smartReply = generateSmartReply(extractedContent);
-                        
-                        const answerInput = document.getElementById('aikifu-answer');
-                        if (answerInput && !answerInput.value) {
-                            answerInput.value = smartReply.primaryReply;
-                            answerInput.placeholder = `智能回复建议: ${smartReply.primaryReply}`;
-                            
-                            if (smartReply.suggestions.length > 1) {
-                                const resultsDiv = document.getElementById('aikifu-results');
-                                if (resultsDiv) {
-                                    // 仅当结果区未显示（即未进行优化）时才显示建议
-                                    // 或者我们可以专门开辟一个建议区，不复用 resultsDiv
-                                    // 这里暂时保持原逻辑，但在用户明确要求不显示loading时，
-                                    // 我们利用这个区域显示建议是合理的，只要不是"loading"样式
-                                    
-                                    // 注意：之前删除了 loading，现在 resultsDiv 用于显示最终结果
-                                    // 这里我们可以插入建议，但要注意不要覆盖"优化后的结果"
-                                    // 如果 resultsDiv 是隐藏的，我们可以用它显示建议
-                                    if (resultsDiv.style.display === 'none') {
-                                        resultsDiv.innerHTML = `
-                                            <div style="margin-bottom: 10px; padding: 10px; background: #e3f2fd; border-radius: 4px; border-left: 3px solid #2196F3;">
-                                                <strong>💡 智能回复建议:</strong><br>
-                                                ${smartReply.suggestions.map((suggestion, index) => 
-                                                    `<div style="margin: 5px 0; cursor: pointer; padding: 5px; border-radius: 3px;" 
-                                                          onclick="document.getElementById('aikifu-answer').value='${suggestion.replace(/'/g, "\\'")}'"
-                                                          onmouseover="this.style.background='#bbdefb'"
-                                                          onmouseout="this.style.background='none'">
-                                                        ${index + 1}. ${suggestion}
-                                                    </div>`
-                                                ).join('')}
-                                            </div>
-                                        `;
-                                        resultsDiv.style.display = 'block';
-                                    }
-                                }
-                            }
-                        }
-                        
                         showNotification(`已提取用户问题`, 'success');
                     }
                 }
@@ -1671,88 +1638,9 @@
         return navigator.language.startsWith('zh') ? 'zh' : 'en';
     }
     
-    // 智能内容分析
-    function analyzeContent(content) {
-        const analysis = {
-            type: 'unknown',
-            sentiment: 'neutral',
-            category: 'general',
-            keyPoints: []
-        };
-        
-        // 情感分析
-        const positiveWords = ['好', '棒', '优秀', '满意', '感谢', '谢谢', 'good', 'great', 'excellent', 'satisfied', 'thank'];
-        const negativeWords = ['差', '坏', '糟糕', '失望', '问题', '错误', 'bad', 'terrible', 'disappointed', 'problem', 'error'];
-        
-        const lowerContent = content.toLowerCase();
-        const hasPositive = positiveWords.some(word => lowerContent.includes(word));
-        const hasNegative = negativeWords.some(word => lowerContent.includes(word));
-        
-        if (hasPositive && !hasNegative) {
-            analysis.sentiment = 'positive';
-        } else if (hasNegative && !hasPositive) {
-            analysis.sentiment = 'negative';
-        }
-        
-        // 类型识别
-        if (lowerContent.includes('问题') || lowerContent.includes('错误') || lowerContent.includes('problem') || lowerContent.includes('error')) {
-            analysis.type = 'issue';
-            analysis.category = 'technical';
-        } else if (lowerContent.includes('建议') || lowerContent.includes('反馈') || lowerContent.includes('suggestion') || lowerContent.includes('feedback')) {
-            analysis.type = 'suggestion';
-            analysis.category = 'improvement';
-        } else if (lowerContent.includes('感谢') || lowerContent.includes('谢谢') || lowerContent.includes('thank')) {
-            analysis.type = 'appreciation';
-            analysis.category = 'positive';
-        }
-        
-        // 提取关键点
-        const sentences = content.split(/[。！？.!?]/).filter(s => s.trim().length > 5);
-        analysis.keyPoints = sentences.slice(0, 3).map(s => s.trim());
-        
-        return analysis;
-    }
+
     
-    // 生成智能回复建议
-    function generateSmartReply(content) {
-        const analysis = analyzeContent(content);
-        const lang = getCurrentLang();
-        
-        let suggestions = [];
-        
-        if (analysis.sentiment === 'positive') {
-            suggestions.push(lang === 'zh' ? 
-                '感谢您的好评和支持！我们会继续努力提供更好的服务。' : 
-                'Thank you for your positive feedback! We will continue to strive to provide better service.');
-        } else if (analysis.sentiment === 'negative') {
-            suggestions.push(lang === 'zh' ? 
-                '非常抱歉给您带来了不好的体验。我们会认真对待您的反馈并立即改进。' : 
-                'We sincerely apologize for the negative experience. We take your feedback seriously and will improve immediately.');
-        }
-        
-        if (analysis.type === 'issue') {
-            suggestions.push(lang === 'zh' ? 
-                '我们已收到您报告的问题，技术团队会尽快调查并解决。' : 
-                'We have received the issue you reported, and our technical team will investigate and resolve it as soon as possible.');
-        } else if (analysis.type === 'suggestion') {
-            suggestions.push(lang === 'zh' ? 
-                '感谢您的宝贵建议！我们会认真考虑并在后续版本中优化。' : 
-                'Thank you for your valuable suggestion! We will consider it carefully and optimize it in future versions.');
-        }
-        
-        // 通用回复
-        if (suggestions.length === 0) {
-            suggestions.push(lang === 'zh' ? 
-                '感谢您的反馈！我们会认真处理您的意见。' : 
-                'Thank you for your feedback! We will handle your comments carefully.');
-        }
-        
-        return {
-            analysis: analysis,
-            suggestions: suggestions,
-            primaryReply: suggestions[0]
-        };
-    }
+
     
     // 增强的侧边栏创建函数
     const originalCreateSidebar = createSidebar;
