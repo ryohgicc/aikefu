@@ -79,7 +79,60 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     return true; // 异步响应
   }
+
+  if (request.action === 'translateText') {
+    translateText(request.text)
+      .then(result => {
+        sendResponse({ translation: result });
+      })
+      .catch(error => {
+        console.error('AIkeFu-BG: translateText error:', error);
+        sendResponse({ error: error.message });
+      });
+    return true;
+  }
 });
+
+// 调用API翻译文本
+async function translateText(text) {
+  try {
+    const config = await configManager.getConfig();
+    if (!config.apiKey || !config.baseUrl || !config.model) {
+      throw new Error('API配置不完整');
+    }
+
+    const systemPrompt = `你是一个翻译助手。请将以下文本翻译成中文。如果文本已经是中文，请原样返回。直接返回翻译后的内容，不要包含任何前缀、解释或引号。
+    
+    待翻译文本："${text}"`;
+
+    const requestBody = {
+      model: config.model,
+      messages: [
+        { role: 'system', content: systemPrompt }
+      ]
+    };
+
+    const response = await fetch(`${config.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content?.trim() || '翻译失败';
+  } catch (error) {
+    console.error('Translation failed:', error);
+    throw error;
+  }
+}
 
 // 调用API优化回答
 async function optimizeAnswer(question, answer) {

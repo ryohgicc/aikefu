@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIkeFu Assistant Layout Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .mock-page-content {
+            margin-left: 820px; /* Leave space for sidebar */
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .mock-drawer {
+            border: 1px dashed #ccc;
+            padding: 20px;
+            margin-top: 20px;
+            background: #fafafa;
+        }
+        .text___1gPRS {
+            background: #e6f7ff;
+            padding: 10px;
+            border: 1px solid #91d5ff;
+            margin-bottom: 10px;
+        }
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        button {
+            padding: 8px 16px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #40a9ff;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button onclick="triggerSidebar()">强制显示侧边栏</button>
+        <button onclick="updateMockContent()">更新模拟内容</button>
+    </div>
+
+    <div class="mock-page-content">
+        <h1>模拟宿主页面</h1>
+        <p>这是模拟的业务系统页面内容。</p>
+        
+        <div class="mock-drawer">
+            <h3>模拟抽屉组件</h3>
+            <div class="text___1gPRS" style="font-weight: bold; padding-left: 48px; padding-bottom: 20px;">
+                用户提问：如何退款？我买错了商品。
+            </div>
+            <div>其他内容...</div>
+        </div>
+    </div>
+
+    <script>
+        // Mock chrome API
+        window.chrome = {
+            runtime: {
+                sendMessage: function(message) {
+                    console.log('Mock sendMessage:', message);
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            if (message.action === 'optimizeAnswer') {
+                                resolve({
+                                    optimizedAnswer: {
+                                        zh: "您好，关于退款问题，请您在订单页面点击申请退款，我们会尽快处理。",
+                                        optimized_reply: "Hello, regarding the refund, please apply on the order page."
+                                    }
+                                });
+                            }
+                        }, 1000);
+                    });
+                },
+                onMessage: {
+                    addListener: function() {}
+                }
+            }
+        };
+
+        // Mock window.location for initial check (though we will force create)
+        // We can't easily mock window.location.href directly as it's read-only, 
+        // but we can bypass the check by calling createSidebar directly.
+
+        function triggerSidebar() {
+            if (window.createSidebar) {
+                window.createSidebar();
+            } else {
+                alert('createSidebar function not found. Script might not be loaded yet.');
+            }
+        }
+
+        function updateMockContent() {
+            const el = document.querySelector('.text___1gPRS');
+            el.textContent = '新的用户提问：这个产品支持保修吗？ ' + new Date().toLocaleTimeString();
+        }
+    </script>
+    
+    <!-- Load the content script -->
+    <script src="content-script-spa.js"></script>
+</body>
+</html>

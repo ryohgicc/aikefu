@@ -127,6 +127,11 @@
 
                     <!-- 右侧结果区 -->
                     <div class="aikifu-right-panel">
+                        <div id="aikifu-translation-box" style="display:none; margin-bottom: 20px;">
+                            <div class="aikifu-result-title">用户问题翻译</div>
+                            <div class="aikifu-result-content" id="aikifu-translation-content" style="min-height: 100px; color: #555;"></div>
+                        </div>
+
                         <div id="aikifu-empty-state" class="aikifu-empty-state">
                             <div class="aikifu-empty-icon">🤖</div>
                             <div>点击"优化回答"生成AI建议</div>
@@ -857,8 +862,82 @@
         document.head.appendChild(style);
     }
     
+    // 翻译相关变量
+    let translationTimeout = null;
+
+    // 翻译用户问题
+    async function translateQuestion(text) {
+        if (!text) {
+            hideTranslationBox();
+            return;
+        }
+
+        const box = document.getElementById('aikifu-translation-box');
+        const content = document.getElementById('aikifu-translation-content');
+        const emptyState = document.getElementById('aikifu-empty-state');
+        const results = document.getElementById('aikifu-results');
+
+        // 如果结果区域已经显示，就不显示翻译框了，避免界面混乱
+        if (results && results.style.display !== 'none' && results.style.display !== '') {
+            return;
+        }
+
+        if (box && content) {
+            box.style.display = 'block';
+            content.textContent = '正在翻译...';
+            content.style.opacity = '0.7';
+            
+            if (emptyState) emptyState.style.display = 'none';
+
+            try {
+                console.log('AIkeFu: 开始翻译文本', text.substring(0, 20) + '...');
+                const response = await chrome.runtime.sendMessage({
+                    action: 'translateText',
+                    text: text
+                });
+
+                if (response.error) {
+                    throw new Error(response.error);
+                }
+
+                content.textContent = response.translation;
+                content.style.opacity = '1';
+                console.log('AIkeFu: 翻译成功');
+            } catch (error) {
+                console.error('AIkeFu: 翻译失败', error);
+                content.textContent = '翻译失败: ' + error.message;
+                content.style.color = '#dc2626';
+            }
+        }
+    }
+
+    function hideTranslationBox() {
+        const box = document.getElementById('aikifu-translation-box');
+        const emptyState = document.getElementById('aikifu-empty-state');
+        if (box) box.style.display = 'none';
+        if (emptyState) emptyState.style.removeProperty('display'); // 恢复 empty state 的显示
+    }
+
     // 设置事件监听器
     function setupEventListeners() {
+        // 监听用户问题输入，自动翻译
+        const questionInput = document.getElementById('aikifu-question');
+        if (questionInput) {
+            questionInput.addEventListener('input', (e) => {
+                const text = e.target.value.trim();
+                
+                if (translationTimeout) clearTimeout(translationTimeout);
+                
+                if (text) {
+                    translationTimeout = setTimeout(() => {
+                        translateQuestion(text);
+                    }, 1000); // 1秒防抖
+                } else {
+                    hideTranslationBox();
+                }
+            });
+        }
+
         // 优化按钮
         const optimizeBtn = document.getElementById('aikifu-optimize');
         if (optimizeBtn) optimizeBtn.addEventListener('click', optimizeAnswer);
@@ -1242,6 +1321,9 @@
                     } else {
                         console.log(`AIkeFu Assistant: 从${contentSource}提取内容并更新:`, extractedContent.substring(0, 50) + '...');
                         questionInput.value = extractedContent;
+                        
+                        // 触发翻译
+                        translateQuestion(extractedContent);
                         
                         // 只有在首次提取或内容发生实质变化时才重新生成建议
                         // 避免频繁调用 API 或刷新建议
