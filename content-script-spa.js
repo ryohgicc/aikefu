@@ -10,26 +10,15 @@
     let currentUrl = window.location.href;
     let isInjected = false;
     let isPinned = false;
+    let translationTimeout = null;
     
-    // 快速回复模板
-    const quickTemplates = {
-        greeting: {
-            zh: '您好！感谢您的反馈，我们非常重视您的意见。',
-            en: 'Hello! Thank you for your feedback, we really value your opinion.'
-        },
-        thanks: {
-            zh: '非常感谢您的耐心和支持，我们会继续努力提供更好的服务。',
-            en: 'Thank you very much for your patience and support. We will continue to strive to provide better service.'
-        },
-        apology: {
-            zh: '对于给您带来的不便，我们深表歉意。我们会立即处理这个问题。',
-            en: 'We sincerely apologize for the inconvenience caused. We will address this issue immediately.'
-        },
-        help: {
-            zh: '我很乐意帮助您解决这个问题。让我为您提供详细的解决方案。',
-            en: 'I\'m happy to help you resolve this issue. Let me provide you with a detailed solution.'
-        }
-    };
+    // 默认快捷按钮配置
+    const defaultQuickButtons = [
+        { title: '👋 问候语', content: '您好！感谢您的反馈，我们非常重视您的意见。' },
+        { title: '🙏 感谢语', content: '非常感谢您的耐心和支持，我们会继续努力提供更好的服务。' },
+        { title: '😔 道歉语', content: '对于给您带来的不便，我们深表歉意。我们会立即处理这个问题。' },
+        { title: '❓ 帮助语', content: '我很乐意帮助您解决这个问题。让我为您提供详细的解决方案。' }
+    ];
     
     // 检测是否应该显示侧边栏
     function shouldShowSidebar() {
@@ -90,6 +79,29 @@
                         <input type="text" class="aikifu-input aikifu-settings-input" id="aikifu-config-model" placeholder="ep-20250509112109-tqptk">
                     </div>
                     
+                    <div class="aikifu-form-group" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                        <label style="font-weight: bold; color: #374151;">快捷按钮配置 (点击直接填充到输入框)</label>
+                    </div>
+                    
+                    <div id="aikifu-quick-buttons-config">
+                        <div class="aikifu-quick-config-row">
+                            <input type="text" class="aikifu-input aikifu-quick-title" data-index="0" placeholder="按钮1标题">
+                            <textarea class="aikifu-input aikifu-quick-content" data-index="0" placeholder="按钮1内容" rows="2"></textarea>
+                        </div>
+                        <div class="aikifu-quick-config-row">
+                            <input type="text" class="aikifu-input aikifu-quick-title" data-index="1" placeholder="按钮2标题">
+                            <textarea class="aikifu-input aikifu-quick-content" data-index="1" placeholder="按钮2内容" rows="2"></textarea>
+                        </div>
+                        <div class="aikifu-quick-config-row">
+                            <input type="text" class="aikifu-input aikifu-quick-title" data-index="2" placeholder="按钮3标题">
+                            <textarea class="aikifu-input aikifu-quick-content" data-index="2" placeholder="按钮3内容" rows="2"></textarea>
+                        </div>
+                        <div class="aikifu-quick-config-row">
+                            <input type="text" class="aikifu-input aikifu-quick-title" data-index="3" placeholder="按钮4标题">
+                            <textarea class="aikifu-input aikifu-quick-content" data-index="3" placeholder="按钮4内容" rows="2"></textarea>
+                        </div>
+                    </div>
+                    
                     <div class="aikifu-modal-actions">
                         <button id="aikifu-config-save" class="aikifu-btn-primary">保存配置</button>
                         <button id="aikifu-config-reset" class="aikifu-btn-danger">重置默认</button>
@@ -104,11 +116,8 @@
                 <div class="aikifu-split-layout">
                     <!-- 左侧操作区 -->
                     <div class="aikifu-left-panel">
-                        <div class="aikifu-quick-actions">
-                            <button class="aikifu-quick-btn" data-template="greeting">👋 问候语</button>
-                            <button class="aikifu-quick-btn" data-template="thanks">🙏 感谢语</button>
-                            <button class="aikifu-quick-btn" data-template="apology">😔 道歉语</button>
-                            <button class="aikifu-quick-btn" data-template="help">❓ 帮助语</button>
+                        <div class="aikifu-quick-actions" id="aikifu-quick-buttons-container">
+                            <!-- 按钮将由 JavaScript 动态生成 -->
                         </div>
                         <div class="aikifu-input-group">
                             <label>用户问题：</label>
@@ -168,6 +177,11 @@
         
         setupEventListeners();
         
+        // 动态生成快捷按钮
+        loadConfig().then(config => {
+            refreshQuickButtons(config.quickButtons || defaultQuickButtons);
+        });
+        
         // 尝试提取页面内容
         setTimeout(extractPageContent, 1000);
 
@@ -191,10 +205,12 @@
     function loadConfig() {
         return new Promise((resolve) => {
             chrome.storage.local.get(['aikefu_config'], (result) => {
-                const config = result.aikefu_config || {
-                    apiKey: '',
-                    baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-                    model: 'ep-20250509112109-tqptk'
+                const savedConfig = result.aikefu_config || {};
+                const config = {
+                    apiKey: savedConfig.apiKey || '',
+                    baseUrl: savedConfig.baseUrl || 'https://ark.cn-beijing.volces.com/api/v3',
+                    model: savedConfig.model || 'ep-20250509112109-tqptk',
+                    quickButtons: savedConfig.quickButtons || [...defaultQuickButtons]
                 };
                 resolve(config);
             });
@@ -216,6 +232,16 @@
                 document.getElementById('aikifu-config-apikey').value = config.apiKey || '';
                 document.getElementById('aikifu-config-baseurl').value = config.baseUrl || 'https://ark.cn-beijing.volces.com/api/v3';
                 document.getElementById('aikifu-config-model').value = config.model || 'ep-20250509112109-tqptk';
+                
+                // 加载快捷按钮配置
+                const quickButtons = config.quickButtons || defaultQuickButtons;
+                const titleInputs = document.querySelectorAll('.aikifu-quick-title');
+                const contentInputs = document.querySelectorAll('.aikifu-quick-content');
+                
+                quickButtons.forEach((btn, index) => {
+                    if (titleInputs[index]) titleInputs[index].value = btn.title || '';
+                    if (contentInputs[index]) contentInputs[index].value = btn.content || '';
+                });
             } catch (err) {
                 console.error('AIkeFu: loadConfig failed', err);
                 // 即使加载失败，也保持弹窗显示，让用户可以重新输入
@@ -244,17 +270,110 @@
             return;
         }
 
+        // 收集快捷按钮配置
+        const quickButtons = [];
+        const titleInputs = document.querySelectorAll('.aikifu-quick-title');
+        const contentInputs = document.querySelectorAll('.aikifu-quick-content');
+        
+        for (let i = 0; i < 4; i++) {
+            quickButtons.push({
+                title: titleInputs[i]?.value.trim() || `按钮${i + 1}`,
+                content: contentInputs[i]?.value.trim() || ''
+            });
+        }
+
         const config = {
             apiKey: apiKey,
             baseUrl: baseUrl || 'https://ark.cn-beijing.volces.com/api/v3',
-            model: model || 'ep-20250509112109-tqptk'
+            model: model || 'ep-20250509112109-tqptk',
+            quickButtons: quickButtons
         };
 
         chrome.storage.local.set({ 'aikefu_config': config }, () => {
             console.log('AIkeFu Assistant: 配置已保存');
             hideSettings();
             showNotification('配置已保存', 'success');
+            
+            // 刷新侧边栏按钮
+            refreshQuickButtons(quickButtons);
         });
+    }
+
+    // 刷新快捷按钮
+    function refreshQuickButtons(buttons) {
+        const container = document.querySelector('.aikifu-quick-actions');
+        if (container) {
+            container.innerHTML = '';
+            buttons.forEach((btn, index) => {
+                if (btn.title && btn.content) {
+                    const button = document.createElement('button');
+                    button.className = 'aikifu-quick-btn';
+                    button.dataset.index = index;
+                    button.textContent = btn.title;
+                    button.addEventListener('click', function() {
+                        handleQuickButtonClick(index, btn.content);
+                    });
+                    container.appendChild(button);
+                }
+            });
+        }
+    }
+
+    // 处理快捷按钮点击
+    function handleQuickButtonClick(index, content) {
+        // 1. 填充到插件的"您的回答"输入框
+        const answerInput = document.getElementById('aikifu-answer');
+        if (answerInput) {
+            answerInput.value = content;
+        }
+        
+        // 2. 自动填充到页面输入框（和复制后一样的逻辑）
+        fillToPageInput(content);
+        
+        // 视觉反馈
+        const btn = document.querySelector(`.aikifu-quick-btn[data-index="${index}"]`);
+        if (btn) {
+            btn.style.background = '#10b981';
+            btn.style.color = 'white';
+            btn.style.borderColor = '#10b981';
+            setTimeout(() => {
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }, 1000);
+        }
+    }
+
+    // 填充内容到页面输入框
+    function fillToPageInput(content) {
+        let filled = false;
+        let targetInput = document.querySelector('textarea[data-testid="text-area"]');
+        
+        if (!targetInput) {
+            targetInput = document.querySelector('textarea.mde-text');
+        }
+        
+        if (targetInput) {
+            console.log('AIkeFu Assistant: 找到目标输入框', targetInput);
+            
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+            if (nativeInputValueSetter) {
+                nativeInputValueSetter.call(targetInput, content);
+            } else {
+                targetInput.value = content;
+            }
+            
+            targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+            targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+            targetInput.focus();
+            
+            console.log('AIkeFu Assistant: 已自动填充到页面输入框');
+            filled = true;
+        } else {
+            console.log('AIkeFu Assistant: 未找到目标输入框 (textarea[data-testid="text-area"] 或 textarea.mde-text)');
+        }
+        
+        return filled;
     }
 
     // 重置配置
@@ -263,6 +382,15 @@
             document.getElementById('aikifu-config-apikey').value = '';
             document.getElementById('aikifu-config-baseurl').value = 'https://ark.cn-beijing.volces.com/api/v3';
             document.getElementById('aikifu-config-model').value = 'ep-20250509112109-tqptk';
+            
+            // 重置快捷按钮配置
+            const titleInputs = document.querySelectorAll('.aikifu-quick-title');
+            const contentInputs = document.querySelectorAll('.aikifu-quick-content');
+            
+            defaultQuickButtons.forEach((btn, index) => {
+                if (titleInputs[index]) titleInputs[index].value = btn.title || '';
+                if (contentInputs[index]) contentInputs[index].value = btn.content || '';
+            });
         }
     }
 
@@ -571,6 +699,28 @@
                 background: #e53935 !important;
             }
             
+            /* 快捷按钮配置样式 */
+            #aikifu-quick-buttons-config {
+                margin-top: 10px;
+            }
+            
+            .aikifu-quick-config-row {
+                margin-bottom: 12px;
+            }
+            
+            .aikifu-quick-title {
+                min-height: 36px !important;
+                padding: 6px 10px !important;
+                margin-bottom: 6px !important;
+                font-weight: 500 !important;
+            }
+            
+            .aikifu-quick-content {
+                min-height: 60px !important;
+                padding: 8px 10px !important;
+                font-size: 13px !important;
+            }
+            
             /* 旧的 content 类名保留但样式调整 */
             .aikifu-content {
                 padding: 0 !important;
@@ -862,9 +1012,6 @@
         document.head.appendChild(style);
     }
     
-    // 翻译相关变量
-    let translationTimeout = null;
-
     // 翻译用户问题
     async function translateQuestion(text) {
         if (!text) {
@@ -978,13 +1125,6 @@
             hideSettings();
         });
         
-        // 快速操作按钮
-        document.querySelectorAll('.aikifu-quick-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                insertTemplate(this.dataset.template, this);
-            });
-        });
-        
         // 复制按钮
         document.querySelectorAll('.aikifu-copy-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -999,30 +1139,6 @@
                 optimizeAnswer();
             }
         });
-    }
-    
-    // 插入模板
-    function insertTemplate(templateType, btn) {
-        const template = quickTemplates[templateType];
-        if (template) {
-            const answerInput = document.getElementById('aikifu-answer');
-            if (answerInput) {
-                answerInput.value = template.zh; // 默认使用中文模板
-                // 添加视觉反馈
-                const targetBtn = btn || event.target;
-                if (targetBtn) {
-                    targetBtn.style.background = '#10b981';
-                    targetBtn.style.color = 'white';
-                    targetBtn.style.borderColor = '#10b981';
-                    
-                    setTimeout(() => {
-                        targetBtn.style.background = '';
-                        targetBtn.style.color = '';
-                        targetBtn.style.borderColor = '';
-                    }, 1000);
-                }
-            }
-        }
     }
     
     // 固定/取消固定窗口
