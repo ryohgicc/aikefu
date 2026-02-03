@@ -633,6 +633,8 @@
                 background: white !important;
                 width: 90% !important;
                 max-width: 500px !important;
+                max-height: 90% !important;
+                overflow-y: auto !important;
                 padding: 30px !important;
                 border-radius: 12px !important;
                 box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
